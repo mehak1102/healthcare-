@@ -7,10 +7,15 @@ export function sessionCookieName(env: Env): string {
 }
 
 export function sessionCookieOptions(env: Env): CookieOptions {
+  // Production on split hosts (e.g. static + API on different *.onrender.com
+  // subdomains) is cross-site. SameSite=Lax cookies are not sent on cross-site
+  // fetch(), so the session would be dropped after login. None + Secure is
+  // required until the API and web app share one registrable domain.
+  const crossSite = env.NODE_ENV === 'production';
   return {
     httpOnly: true,
-    secure: env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: crossSite,
+    sameSite: crossSite ? 'none' : 'lax',
     path: '/',
   };
 }
