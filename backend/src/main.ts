@@ -16,7 +16,7 @@ async function bootstrap(): Promise<void> {
   });
   configureApp(app, env);
   setupSwagger(app, env);
-  await app.listen(env.PORT);
+  await app.listen(env.PORT, '0.0.0.0');
 
   const logger = new Logger('Bootstrap');
   logger.log(`API listening on port ${env.PORT} (${env.NODE_ENV})`);
