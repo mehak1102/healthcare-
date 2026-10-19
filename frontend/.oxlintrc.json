@@ -1,0 +1,22 @@
+{
+  "$schema": "../node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "oxc", "jsx-a11y", "import"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }],
+    "react/no-danger": "error",
+    "jsx-a11y/prefer-tag-over-role": "off",
+    "import/no-unassigned-import": "off",
+    "typescript/no-explicit-any": "error",
+    "no-console": "warn"
+  },
+  "env": {
+    "browser": true
+  }
+}

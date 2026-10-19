@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json.schemastore.org/nodemon",
+  "watch": ["src"],
+  "ext": "ts,json",
+  "ignore": ["src/**/*.spec.ts"],
+  "delay": 300,
+  "exec": "tsc -p tsconfig.build.json && node --enable-source-maps dist/main.js",
+  "signal": "SIGTERM"
+}

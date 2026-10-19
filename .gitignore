@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.vite/
+
+# Environment files and secrets — never commit real values
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+service-account*.json
+
+# Data exports and logs that may contain personal or medical data
+*.log
+logs/
+exports/
+*.dump
+*.bson
+*.archive
+
+# Playwright browser tests
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+e2e/.doctor-slug
+e2e/.demo-seed-meta.json
+
+# Tooling
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.tmp/

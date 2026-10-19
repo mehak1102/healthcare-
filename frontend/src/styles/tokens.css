@@ -1,0 +1,55 @@
+/*
+ * Design tokens — the only place colours, fonts, radii and shadows are defined.
+ * Tailwind exposes each token as a utility (e.g. bg-canvas, text-ink, border-line) and as a CSS
+ * variable (e.g. var(--color-coral)).
+ *
+ * Contrast notes (WCAG 2.2 AA):
+ * - Coral (#F58F80) fails with white text (≈2.4:1); primary buttons use ink text (≈6:1).
+ * - Text links and focus rings use coral-ink (#A84B3C, ≈5:1 on canvas).
+ * - Mauve, blue-grey and sage are for large text, icons and surfaces only.
+ */
+@theme {
+  /* Palette 1 — primary */
+  --color-peach: #f9cdbe;
+  --color-coral: #f58f80;
+  --color-rose: #c99898;
+  --color-bluegrey: #9dbac2;
+  --color-mauve: #987985;
+
+  /* Palette 2 — secondary */
+  --color-terracotta: #bc8f88;
+  --color-blush: #ddb7aa;
+  --color-beige: #ddc9bd;
+  --color-softgrey: #b4b7bb;
+  --color-sage: #9eafb0;
+
+  /* Supporting */
+  --color-canvas: #faf7f4;
+  --color-surface: #ffffff;
+  --color-ink: #302b2b;
+  --color-ink-muted: #716967;
+  --color-line: #e8deda;
+
+  /* Derived accessible shades (darker tones of the palette for text on light surfaces) */
+  --color-coral-hover: #f27c6b;
+  --color-coral-ink: #a84b3c;
+  --color-sand: #f4ede7;
+  --color-danger-ink: #9c3b2f;
+  --color-danger-surface: #fbeae5;
+  --color-success-ink: #3d625b;
+  --color-success-surface: #e8efee;
+  --color-info-ink: #3e5d66;
+  --color-info-surface: #e7eff1;
+  --color-warning-ink: #7a5a1f;
+  --color-warning-surface: #f8efdc;
+
+  /* Typography */
+  --font-sans: 'Jost Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Jost Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Shape and depth */
+  --radius-card: 1.25rem;
+  --radius-control: 0.75rem;
+  --shadow-soft: 0 1px 2px rgb(48 43 43 / 0.04), 0 8px 24px -12px rgb(48 43 43 / 0.12);
+  --shadow-lifted: 0 2px 4px rgb(48 43 43 / 0.04), 0 18px 40px -18px rgb(48 43 43 / 0.22);
+}

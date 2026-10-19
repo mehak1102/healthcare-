@@ -1,0 +1,23 @@
+/** Rows for `npm run db:seed-public-holidays` — mirrors the built-in list until admins edit the collection. */
+export const INDIA_PUBLIC_HOLIDAY_SEED: { date: string; name: string }[] = [
+  { date: '2025-01-26', name: 'Republic Day' },
+  { date: '2025-03-14', name: 'Holi' },
+  { date: '2025-08-15', name: 'Independence Day' },
+  { date: '2025-10-02', name: 'Gandhi Jayanti' },
+  { date: '2025-10-21', name: 'Diwali' },
+  { date: '2025-12-25', name: 'Christmas' },
+  { date: '2026-01-26', name: 'Republic Day' },
+  { date: '2026-03-03', name: 'Holi' },
+  { date: '2026-04-03', name: 'Good Friday' },
+  { date: '2026-04-14', name: 'Ambedkar Jayanti' },
+  { date: '2026-08-15', name: 'Independence Day' },
+  { date: '2026-10-02', name: 'Gandhi Jayanti' },
+  { date: '2026-11-08', name: 'Diwali' },
+  { date: '2026-12-25', name: 'Christmas' },
+  { date: '2027-01-26', name: 'Republic Day' },
+  { date: '2027-03-22', name: 'Holi' },
+  { date: '2027-08-15', name: 'Independence Day' },
+  { date: '2027-10-02', name: 'Gandhi Jayanti' },
+  { date: '2027-10-28', name: 'Diwali' },
+  { date: '2027-12-25', name: 'Christmas' },
+];

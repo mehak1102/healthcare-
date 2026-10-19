@@ -1,0 +1,24 @@
+{
+  "$schema": "../node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "oxc", "import", "jest"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "rules": {
+    "typescript/no-explicit-any": "error",
+    "typescript/no-extraneous-class": "off",
+    "no-underscore-dangle": ["warn", { "allow": ["_id"] }],
+    "no-console": "error"
+  },
+  "env": {
+    "node": true,
+    "jest": true
+  },
+  "overrides": [
+    {
+      "files": ["src/scripts/**"],
+      "rules": { "no-console": "off" }
+    }
+  ]
+}

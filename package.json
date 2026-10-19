@@ -1,0 +1,39 @@
+{
+  "name": "sukoon-health",
+  "private": true,
+  "description": "Healthcare discovery and booking platform (working name: Sukoon Health)",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "bash scripts/dev.sh",
+    "dev:stop": "npm run dev:stop -w backend",
+    "dev:backend": "npm run dev -w backend",
+    "dev:frontend": "npm run dev -w frontend",
+    "build": "npm run build -w backend && npm run build -w frontend",
+    "lint": "npm run lint -w backend && npm run lint -w frontend",
+    "typecheck": "npm run typecheck -w backend && npm run typecheck -w frontend",
+    "test": "npm run test -w backend && npm run test -w frontend",
+    "test:e2e": "npm run test:e2e -w backend",
+    "test:browser": "playwright test -c e2e/playwright.config.ts",
+    "test:browser:smoke": "playwright test -c e2e/playwright.config.ts e2e/smoke.spec.ts",
+    "test:browser:ui": "playwright test -c e2e/playwright.config.ts --ui",
+    "setup:demo": "bash scripts/require-seed-password.sh && npm run db:seed -w backend && npm run db:seed:demo-doctor -w backend && npm run db:seed-public-holidays -w backend && npm run db:refresh-next-available -w backend",
+    "setup:demo:video": "bash scripts/require-seed-password.sh && npm run db:seed -w backend && npm run db:seed:demo-doctor:video -w backend && npm run db:seed-public-holidays -w backend && npm run db:refresh-next-available -w backend",
+    "playwright:install": "playwright install chromium",
+    "webhook:tunnel": "bash scripts/razorpay-webhook-tunnel.sh",
+    "check": "npm run lint && npm run typecheck && npm run test && npm run format:check",
+    "check:production-env": "npm run check:production-env -w backend",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "audit:deps": "npm audit --omit=dev"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.51.0",
+    "prettier": "^3.6.0"
+  }
+}
