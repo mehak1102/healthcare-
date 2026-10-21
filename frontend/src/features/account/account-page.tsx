@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import { PageHeader } from '@/components/layout/page-header';
-import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { buttonVariants } from '@/components/ui/button-variants';
@@ -19,7 +18,6 @@ import { usePageTitle } from '@/lib/use-page-title';
 import { ChangePasswordCard } from './change-password-card';
 import { DeleteAccountCard } from './delete-account-card';
 import { SessionsCard } from './sessions-card';
-import { TwoStepCard } from './two-step-card';
 import { VerifyEmailNotice } from './verify-email-notice';
 
 const ROLE_LABELS: Record<string, string> = {
@@ -133,11 +131,13 @@ export function AccountPage() {
         }
       />
 
+      {/* Staff MFA lock is off for now. Restore with TwoStepCard when 2FA is required again.
       {user.staffMfaRequired && (
         <Alert tone="warning" title="Staff features are locked" className="mt-8">
           Turn on two-step verification below. Your staff tools unlock as soon as it is on.
         </Alert>
       )}
+      */}
 
       <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_1.25fr]">
         <div className="flex flex-col gap-6">
@@ -188,7 +188,7 @@ export function AccountPage() {
           <ChangePasswordCard />
         </div>
         <div className="flex flex-col gap-6">
-          <TwoStepCard />
+          {/* <TwoStepCard /> */}
           <SessionsCard />
           <DeleteAccountCard
             isDoctor={user.roles.includes('doctor')}
