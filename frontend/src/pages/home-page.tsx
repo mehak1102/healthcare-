@@ -1,112 +1,18 @@
 import {
-  Activity,
-  Ambulance,
-  Baby,
-  Brain,
   CalendarClock,
   ClipboardCheck,
-  HandHeart,
-  HeartPulse,
-  House,
-  Leaf,
   LockKeyhole,
-  Microscope,
   Moon,
   ShieldCheck,
   Siren,
-  Smile,
-  Stethoscope,
-  Video,
-  type LucideIcon,
 } from 'lucide-react';
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router';
 import { buttonVariants } from '@/components/ui/button-variants';
 import { useCurrentUser } from '@/features/auth/use-auth';
 import { HomeHero } from '@/features/home/hero/home-hero';
+import { HomeServices } from '@/features/home/services/home-services';
 import { usePageTitle } from '@/lib/use-page-title';
-
-interface ServicePreview {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  to: string;
-}
-
-const SERVICES: ServicePreview[] = [
-  {
-    icon: Stethoscope,
-    title: 'General medicine',
-    description: 'Everyday illness, check-ups and ongoing conditions.',
-    to: '/doctors',
-  },
-  {
-    icon: HeartPulse,
-    title: 'Specialist doctors',
-    description: 'Cardiology, dermatology, neurology, orthopaedics and more.',
-    to: '/care',
-  },
-  {
-    icon: House,
-    title: 'Doctor at home',
-    description: 'A verified doctor at your door, with honest arrival estimates.',
-    to: '/doctor-at-home',
-  },
-  {
-    icon: Video,
-    title: 'Online consultation',
-    description: 'Private video or audio visits with registered doctors.',
-    to: '/online-consultation',
-  },
-  {
-    icon: Baby,
-    title: 'Child health',
-    description: 'Paediatric care, vaccinations and growth check-ins.',
-    to: '/care',
-  },
-  {
-    icon: Brain,
-    title: 'Mental health',
-    description: 'Psychiatrists, psychologists and counsellors — clearly labelled.',
-    to: '/care',
-  },
-  {
-    icon: Microscope,
-    title: 'Diagnostics',
-    description: 'Lab tests, imaging and home sample collection.',
-    to: '/diagnostics',
-  },
-  {
-    icon: Activity,
-    title: 'Physiotherapy',
-    description: 'Rehabilitation at the clinic or at home.',
-    to: '/care',
-  },
-  {
-    icon: Leaf,
-    title: 'Ayurveda & homeopathy',
-    description: 'Qualified practitioners, with their medical system stated.',
-    to: '/care',
-  },
-  {
-    icon: Smile,
-    title: 'Dental care',
-    description: 'Routine dental care and specialist treatment.',
-    to: '/care',
-  },
-  {
-    icon: HandHeart,
-    title: 'Home nursing',
-    description: 'Nursing and caregiver support for recovery and long-term care.',
-    to: '/care',
-  },
-  {
-    icon: Ambulance,
-    title: 'Medical transport',
-    description: 'Non-emergency patient transport with partner providers.',
-    to: '/care',
-  },
-];
 
 const AROUND_THE_CLOCK_QUICK_FILTERS: { label: string; to?: string }[] = [
   {
@@ -158,38 +64,7 @@ export function HomePage() {
     <>
       <HomeHero />
 
-      <section id="services" className="scroll-mt-28 border-y border-line bg-surface/70">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <div className="flex max-w-2xl flex-col gap-3">
-            <p className="text-sm font-semibold tracking-wide text-coral-ink uppercase">Services</p>
-            <h2 className="text-3xl font-semibold sm:text-4xl">
-              One calm place for your family's care
-            </h2>
-            <p className="text-ink-muted">
-              We are opening services one at a time, and each launches only once it is safe and
-              genuinely works.
-            </p>
-          </div>
-          <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {SERVICES.map(({ icon: Icon, title, description, to }) => (
-              <li key={title}>
-                <Link
-                  to={to}
-                  className="flex h-full flex-col gap-4 rounded-[var(--radius-card)] border border-line bg-canvas p-6 transition-colors hover:border-blush"
-                >
-                  <span className="grid size-12 place-items-center rounded-2xl bg-blush/35">
-                    <Icon className="size-6 text-ink" aria-hidden="true" />
-                  </span>
-                  <div>
-                    <h3 className="font-sans text-lg font-semibold text-ink">{title}</h3>
-                    <p className="mt-1 text-sm leading-relaxed text-ink-muted">{description}</p>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+      <HomeServices />
 
       <section
         id="around-the-clock"
