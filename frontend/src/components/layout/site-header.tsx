@@ -15,6 +15,7 @@ import { homeForRoles } from '@/features/auth/home-for-roles';
 import { useCurrentUser } from '@/features/auth/use-auth';
 import { cn } from '@/lib/cn';
 import { usePrefersReducedMotion } from '@/lib/use-prefers-reduced-motion';
+import { LanguageToggle } from '@/features/home/hero/language-toggle';
 import { Logo } from './logo';
 
 function dashboardLabel(roles: readonly string[], compact: boolean): string {
@@ -295,10 +296,13 @@ export function SiteHeader() {
             </nav>
           </div>
 
-          <div className="hidden shrink-0 items-center lg:flex" data-nav-auth>
+          <div className="hidden shrink-0 items-center gap-3 lg:flex" data-nav-auth>
+            <LanguageToggle compact />
             {authActions}
           </div>
 
+          <div className="flex items-center gap-2 lg:hidden">
+            <LanguageToggle compact />
           <button
             type="button"
             className="grid size-11 place-items-center rounded-full text-ink transition-colors hover:bg-sand/80 lg:hidden"
@@ -313,6 +317,7 @@ export function SiteHeader() {
               <Menu className="size-5" aria-hidden="true" />
             )}
           </button>
+          </div>
         </div>
       </div>
 

@@ -1,4 +1,3 @@
-import '@fontsource-variable/jost/index.css';
 import './styles/index.css';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

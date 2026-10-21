@@ -47,9 +47,9 @@
     overflow: visible;
     background-color: rgb(255 255 255 / var(--nav-morph));
     box-shadow:
-      0 0 0 1px rgb(48 43 43 / calc(0.07 * var(--nav-morph))),
-      0 4px 10px rgb(48 43 43 / calc(0.06 * var(--nav-morph))),
-      0 12px 28px rgb(48 43 43 / calc(0.1 * var(--nav-morph)));
+      0 0 0 1px rgb(14 18 34 / calc(0.07 * var(--nav-morph))),
+      0 4px 10px rgb(60 60 140 / calc(0.08 * var(--nav-morph))),
+      0 12px 28px rgb(60 60 140 / calc(0.16 * var(--nav-morph)));
     /* Slow, soft morph — collapse & expand share the same ease for consistency */
     transition: --nav-morph 1.05s cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -154,8 +154,8 @@
     [data-nav-shell][data-scrolled='true'] {
       background-color: rgb(255 255 255 / 0.96);
       box-shadow:
-        0 1px 0 rgb(48 43 43 / 0.06),
-        0 8px 24px -12px rgb(48 43 43 / 0.08);
+        0 1px 0 rgb(14 18 34 / 0.06),
+        0 8px 24px -12px rgb(60 60 140 / 0.12);
     }
 
     [data-nav-shell] [data-nav-logo-wordmark] {

@@ -5,10 +5,11 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-coral text-ink shadow-[var(--shadow-soft)] hover:bg-coral-hover',
+        primary:
+          'bg-ink text-white shadow-[0_10px_24px_-10px_rgb(14_18_34/0.55)] hover:bg-ink/90',
         secondary: 'border border-line bg-surface text-ink hover:border-rose hover:bg-sand',
         ghost: 'text-ink hover:bg-sand',
-        subtle: 'bg-peach/60 text-ink hover:bg-peach',
+        subtle: 'bg-peach text-coral-ink hover:bg-blush/80',
         danger: 'border border-danger-ink/30 bg-surface text-danger-ink hover:bg-danger-surface',
         link: 'h-auto px-0 text-coral-ink underline-offset-4 hover:underline',
       },

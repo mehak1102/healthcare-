@@ -21,10 +21,9 @@ import {
 } from 'lucide-react';
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router';
-import { Badge } from '@/components/ui/badge';
 import { buttonVariants } from '@/components/ui/button-variants';
-import { homeForRoles } from '@/features/auth/home-for-roles';
 import { useCurrentUser } from '@/features/auth/use-auth';
+import { HomeHero } from '@/features/home/hero/home-hero';
 import { usePageTitle } from '@/lib/use-page-title';
 
 interface ServicePreview {
@@ -157,87 +156,7 @@ export function HomePage() {
 
   return (
     <>
-      <section className="relative overflow-hidden">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-40 -right-40 size-[38rem] rounded-full bg-peach/45 blur-3xl"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-48 -left-32 size-[30rem] rounded-full bg-bluegrey/20 blur-3xl"
-        />
-
-        <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 pt-14 pb-20 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:px-8 lg:pt-20 lg:pb-28">
-          <div className="flex flex-col gap-7">
-            <Badge tone="accent" className="w-fit px-3 py-1">
-              Early access · Built for families in India
-            </Badge>
-            <h1 className="text-[2.6rem] leading-[1.05] font-semibold sm:text-6xl lg:text-[4.1rem]">
-              Care that feels calm, from people you can{' '}
-              <em className="text-coral-ink not-italic">trust</em>.
-            </h1>
-            <p className="max-w-xl text-lg leading-relaxed text-ink-muted">
-              Find verified doctors, see genuine availability, and keep your health records private
-              — whether you need an online consultation, a clinic visit, or a doctor at home.
-            </p>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              {user ? (
-                <Link to={homeForRoles(user.roles)} className={buttonVariants({ size: 'lg' })}>
-                  {homeForRoles(user.roles) === '/account'
-                    ? 'Go to your account'
-                    : 'Go to your dashboard'}
-                </Link>
-              ) : (
-                <>
-                  <Link to="/register" className={buttonVariants({ size: 'lg' })}>
-                    Create your free account
-                  </Link>
-                  <Link
-                    to="/login"
-                    className={buttonVariants({ size: 'lg', variant: 'secondary' })}
-                  >
-                    Sign in
-                  </Link>
-                </>
-              )}
-            </div>
-            <p className="text-sm text-ink-muted">
-              No fabricated ratings. No hidden availability. Your records, your consent.{' '}
-              <Link
-                to="/doctors?takingBookings=1"
-                className="font-medium text-coral-ink underline-offset-2 hover:underline"
-              >
-                Browse doctors taking new bookings
-              </Link>
-              .
-            </p>
-          </div>
-
-          <div className="relative">
-            <div className="rounded-[2rem] border border-line bg-gradient-to-br from-blush/40 via-surface to-peach/30 p-5 shadow-[var(--shadow-lifted)] sm:p-7">
-              <p className="px-1 pb-4 text-sm font-semibold text-ink-muted">
-                What every booking on Sukoon will promise
-              </p>
-              <ul className="flex flex-col gap-3">
-                {COMMITMENTS.slice(0, 3).map(({ icon: Icon, title, body }) => (
-                  <li
-                    key={title}
-                    className="flex gap-4 rounded-2xl border border-line/70 bg-surface/90 p-4"
-                  >
-                    <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-peach/60">
-                      <Icon className="size-5 text-coral-ink" aria-hidden="true" />
-                    </span>
-                    <div>
-                      <p className="font-semibold">{title}</p>
-                      <p className="mt-0.5 text-sm leading-relaxed text-ink-muted">{body}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HomeHero />
 
       <section id="services" className="scroll-mt-28 border-y border-line bg-surface/70">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
@@ -307,7 +226,7 @@ export function HomePage() {
                     {to ? (
                       <Link
                         to={to}
-                        className="inline-block rounded-full border border-canvas/30 bg-canvas/10 px-4 py-2 text-sm text-canvas transition hover:border-peach/60 hover:bg-canvas/15"
+                        className="inline-block rounded-full border border-canvas/30 bg-canvas/10 px-4 py-2 text-sm text-canvas transition hover:border-mauve/80 hover:bg-canvas/15"
                       >
                         {label}
                       </Link>

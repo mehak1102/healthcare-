@@ -1,55 +1,49 @@
 /*
  * Design tokens — the only place colours, fonts, radii and shadows are defined.
- * Tailwind exposes each token as a utility (e.g. bg-canvas, text-ink, border-line) and as a CSS
- * variable (e.g. var(--color-coral)).
+ * Aligned with the Sukoon hero (ink + indigo on white).
  *
  * Contrast notes (WCAG 2.2 AA):
- * - Coral (#F58F80) fails with white text (≈2.4:1); primary buttons use ink text (≈6:1).
- * - Text links and focus rings use coral-ink (#A84B3C, ≈5:1 on canvas).
- * - Mauve, blue-grey and sage are for large text, icons and surfaces only.
+ * - Ink on white ≈ 16:1. Indigo #4C4FE0 on white ≈ 5.5:1.
+ * - Primary buttons use ink (#0E1222) with white text.
+ * - Links and focus rings use indigo-dark (#3D3FC4).
  */
 @theme {
-  /* Palette 1 — primary */
-  --color-peach: #f9cdbe;
-  --color-coral: #f58f80;
-  --color-rose: #c99898;
-  --color-bluegrey: #9dbac2;
-  --color-mauve: #987985;
+  /* Warm names kept so existing utilities stay valid; values are the indigo theme. */
+  --color-peach: #eeedff;
+  --color-coral: #4c4fe0;
+  --color-rose: #c9ccf8;
+  --color-bluegrey: #cdebff;
+  --color-mauve: #4c4fe0;
 
-  /* Palette 2 — secondary */
-  --color-terracotta: #bc8f88;
-  --color-blush: #ddb7aa;
-  --color-beige: #ddc9bd;
-  --color-softgrey: #b4b7bb;
-  --color-sage: #9eafb0;
+  --color-terracotta: #3b4155;
+  --color-blush: #dcd8ff;
+  --color-beige: #f4f4ff;
+  --color-softgrey: #8a90a3;
+  --color-sage: #d3f5e4;
 
-  /* Supporting */
-  --color-canvas: #faf7f4;
+  --color-canvas: #f7f8fc;
   --color-surface: #ffffff;
-  --color-ink: #302b2b;
-  --color-ink-muted: #716967;
-  --color-line: #e8deda;
+  --color-ink: #0e1222;
+  --color-ink-muted: #545a6e;
+  --color-line: #e6e8ef;
 
-  /* Derived accessible shades (darker tones of the palette for text on light surfaces) */
-  --color-coral-hover: #f27c6b;
-  --color-coral-ink: #a84b3c;
-  --color-sand: #f4ede7;
-  --color-danger-ink: #9c3b2f;
-  --color-danger-surface: #fbeae5;
-  --color-success-ink: #3d625b;
-  --color-success-surface: #e8efee;
-  --color-info-ink: #3e5d66;
-  --color-info-surface: #e7eff1;
+  --color-coral-hover: #3d3fc4;
+  --color-coral-ink: #3d3fc4;
+  --color-sand: #f4f4ff;
+  --color-danger-ink: #b42318;
+  --color-danger-surface: #fdecea;
+  --color-success-ink: #1c7a50;
+  --color-success-surface: #e3f6ec;
+  --color-info-ink: #3d3fc4;
+  --color-info-surface: #eeedff;
   --color-warning-ink: #7a5a1f;
   --color-warning-surface: #f8efdc;
 
-  /* Typography */
-  --font-sans: 'Jost Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-display: 'Jost Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: 'Instrument Sans', 'Noto Sans Devanagari', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Instrument Sans', 'Noto Sans Devanagari', ui-sans-serif, system-ui, sans-serif;
 
-  /* Shape and depth */
   --radius-card: 1.25rem;
   --radius-control: 0.75rem;
-  --shadow-soft: 0 1px 2px rgb(48 43 43 / 0.04), 0 8px 24px -12px rgb(48 43 43 / 0.12);
-  --shadow-lifted: 0 2px 4px rgb(48 43 43 / 0.04), 0 18px 40px -18px rgb(48 43 43 / 0.22);
+  --shadow-soft: 0 1px 2px rgb(14 18 34 / 0.05), 0 8px 24px -12px rgb(60 60 140 / 0.18);
+  --shadow-lifted: 0 1px 2px rgb(14 18 34 / 0.05), 0 24px 50px -24px rgb(60 60 140 / 0.35);
 }

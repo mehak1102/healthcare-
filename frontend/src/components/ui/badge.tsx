@@ -11,7 +11,7 @@ const badgeVariants = cva(
         soon: 'bg-bluegrey/25 text-info-ink',
         success: 'bg-success-surface text-success-ink',
         warning: 'bg-warning-surface text-warning-ink',
-        accent: 'bg-peach/70 text-ink',
+        accent: 'bg-peach text-coral-ink',
       },
     },
     defaultVariants: { tone: 'neutral' },

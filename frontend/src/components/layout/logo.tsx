@@ -76,7 +76,7 @@ export function Logo({ variant = 'default', className }: LogoProps) {
         />
       </svg>
       <span className="font-sans text-[1.35rem] leading-none font-semibold tracking-tight text-ink">
-        Sukoon<span className="text-mauve"> Health</span>
+        Sukoon<span className="text-coral-ink"> Health</span>
       </span>
     </Link>
   );
