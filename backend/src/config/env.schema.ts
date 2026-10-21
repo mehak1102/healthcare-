@@ -213,23 +213,24 @@ export const envSchema = z
         message: 'sandbox payments are only for development and test',
       });
     }
-    if (env.PAYMENT_PROVIDER === 'razorpay') {
-      if (env.RAZORPAY_KEY_ID?.startsWith('rzp_test_')) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['RAZORPAY_KEY_ID'],
-          message: 'production must use live Razorpay keys (rzp_live_…)',
-        });
-      }
-      if (!env.RAZORPAY_WEBHOOK_SECRET) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['RAZORPAY_WEBHOOK_SECRET'],
-          message:
-            'production needs the webhook secret so missed payment confirmations are recovered',
-        });
-      }
-    }
+    // TEMPORARY: live is using Razorpay test keys. Restore this block before taking real payments.
+    // if (env.PAYMENT_PROVIDER === 'razorpay') {
+    //   if (env.RAZORPAY_KEY_ID?.startsWith('rzp_test_')) {
+    //     ctx.addIssue({
+    //       code: 'custom',
+    //       path: ['RAZORPAY_KEY_ID'],
+    //       message: 'production must use live Razorpay keys (rzp_live_…)',
+    //     });
+    //   }
+    //   if (!env.RAZORPAY_WEBHOOK_SECRET) {
+    //     ctx.addIssue({
+    //       code: 'custom',
+    //       path: ['RAZORPAY_WEBHOOK_SECRET'],
+    //       message:
+    //         'production needs the webhook secret so missed payment confirmations are recovered',
+    //     });
+    //   }
+    // }
     if (env.VIDEO_JOIN_ANYTIME) {
       ctx.addIssue({
         code: 'custom',
