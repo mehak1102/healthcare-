@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { apiRequest } from '@/lib/api-client';
+import { ApiError, apiRequest } from '@/lib/api-client';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { usePageTitle } from '@/lib/use-page-title';
 
@@ -112,7 +112,13 @@ export function AdminUsersPage() {
       <Card className="mt-6 overflow-hidden">
         {users.isError && (
           <div className="p-6">
-            <Alert tone="error">We could not load users. Please try again.</Alert>
+            <Alert tone="error">
+              {users.error instanceof ApiError
+                ? users.error.code === 'MFA_REQUIRED'
+                  ? 'Turn on two-step verification in your account before viewing users.'
+                  : users.error.message
+                : 'We could not load users. Please try again.'}
+            </Alert>
           </div>
         )}
         {users.isPending && (

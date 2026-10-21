@@ -83,7 +83,13 @@ export function AdminDoctorApplicationsPage() {
 
       <div className="mt-6 flex flex-col gap-4" role="tabpanel">
         {list.isError && (
-          <Alert tone="error">We could not load applications. Please try again.</Alert>
+          <Alert tone="error">
+            {list.error instanceof ApiError
+              ? list.error.code === 'MFA_REQUIRED'
+                ? 'Turn on two-step verification in your account before reviewing applications.'
+                : list.error.message
+              : 'We could not load applications. Please try again.'}
+          </Alert>
         )}
         {list.isPending && (
           <div className="flex flex-col gap-3" role="status">
