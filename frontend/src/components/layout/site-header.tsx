@@ -122,9 +122,17 @@ export function SiteHeader() {
 
     if (reducedMotion) return;
 
-    gsap.set([logo, ...items, cta].filter(Boolean), { opacity: 0, y: 8 });
+    const targets = [logo, ...items, cta].filter(Boolean);
+    gsap.set(targets, { opacity: 0, y: 8 });
 
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out' }, delay: 0.05 });
+    const tl = gsap.timeline({
+      defaults: { ease: 'power3.out' },
+      delay: 0.05,
+      onComplete: () => {
+        // Drop inline opacity/transform so scroll morph CSS can drive them.
+        gsap.set(targets, { clearProps: 'opacity,transform' });
+      },
+    });
     tl.to(logo, { opacity: 1, y: 0, duration: 0.45 })
       .to(items, { opacity: 1, y: 0, duration: 0.4, stagger: 0.06 }, '-=0.28')
       .to(cta, { opacity: 1, y: 0, duration: 0.4 }, '-=0.2');
@@ -241,33 +249,37 @@ export function SiteHeader() {
     <header ref={headerRef} className="pointer-events-none sticky top-0 z-40 w-full">
       <div
         ref={shellRef}
-        className="pointer-events-auto mx-auto w-full [--nav-morph:0] will-change-[width,border-radius,box-shadow]"
+        data-nav-shell
+        className="group pointer-events-auto mx-auto max-lg:w-full"
       >
         <div
           ref={innerRef}
-          className="flex min-h-[4.75rem] w-full min-w-0 items-center justify-between gap-3 px-5 sm:min-h-[5rem] sm:px-8 lg:h-full lg:min-h-0 lg:gap-5 lg:px-0 xl:gap-6"
+          data-nav-inner
+          className="flex min-h-[4.75rem] w-full min-w-0 items-center justify-between gap-3 px-5 sm:min-h-[5rem] sm:px-8 lg:h-full lg:min-h-0 lg:gap-5 lg:px-0"
         >
           <div
-            className="flex min-w-0 flex-1 items-center gap-4 lg:gap-5 xl:gap-6"
+            className="flex min-w-0 items-center gap-4 lg:gap-[length:calc(1.5rem-0.375rem*var(--nav-morph,0))]"
             data-nav-cluster
           >
             <div className="flex h-10 shrink-0 items-center" data-nav-logo>
-              <div ref={wordmarkRef} className="shrink-0 overflow-hidden">
+              <div ref={wordmarkRef} data-nav-logo-wordmark className="shrink-0 overflow-hidden">
                 <Logo variant="wordmark" className="max-lg:!opacity-100 whitespace-nowrap" />
               </div>
               <div
                 ref={markRef}
-                className="hidden h-10 w-0 shrink-0 overflow-hidden opacity-0 lg:block"
+                data-nav-logo-mark
+                className="hidden h-10 shrink-0 overflow-hidden lg:block"
                 aria-hidden="true"
               >
                 <Logo variant="mark" className="!size-10" />
               </div>
             </div>
 
-            <nav aria-label="Main" className="hidden min-w-0 flex-1 lg:block">
+            <nav aria-label="Main" className="hidden min-w-0 lg:block">
               <ul
                 ref={navListRef}
-                className="relative flex items-center justify-center gap-5 xl:gap-6 2xl:gap-8 [&>li]:shrink-0"
+                data-nav-list
+                className="relative flex items-center justify-center gap-[length:calc(1.75rem-0.25rem*var(--nav-morph,0))] [&>li]:shrink-0"
               >
                 {PRIMARY_NAV_LINKS.slice(0, 2).map((item) => renderDesktopNavLink(item))}
                 <li data-nav-entrance data-nav-compact-hide>

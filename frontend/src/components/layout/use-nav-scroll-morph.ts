@@ -1,16 +1,9 @@
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
-
-gsap.registerPlugin(ScrollTrigger);
 
 export const NAV_SCROLL_THRESHOLD = 36;
 const DESKTOP_MQ = '(min-width: 1024px)';
-const MORPH_SCROLL_DISTANCE = 140;
-const SCRUB_SMOOTHING = 1.15;
-const SCROLL_TRIGGER_ID = 'site-nav-morph';
-const INK_SHADOW = '48, 43, 43';
-const easeMorph = gsap.parseEase('power2.inOut');
+const COLLAPSE_AT = 40;
+const EXPAND_AT = 8;
 
 type NavScrollMorphRefs = {
   shellRef: RefObject<HTMLDivElement | null>;
@@ -27,212 +20,75 @@ function expandedPadX(viewportW: number) {
   return 28;
 }
 
-function measureCompactWidth(inner: HTMLElement | null, padX: number, viewportW: number) {
+/** Compact shell padding (must match nav-morph.css at morph = 1: 1.75rem). */
+const COMPACT_PAD_X = 28;
+/** Extra room so the mark and CTA clear the pill caps. */
+const COMPACT_BREATHING = 36;
+
+/** Intrinsic content width — ignores flex-grow so the pill hugs logo + links + CTA. */
+function intrinsicWidth(el: HTMLElement): number {
+  const prev = {
+    flex: el.style.flex,
+    width: el.style.width,
+    minWidth: el.style.minWidth,
+    maxWidth: el.style.maxWidth,
+  };
+  el.style.flex = '0 0 auto';
+  el.style.width = 'max-content';
+  el.style.minWidth = 'min-content';
+  el.style.maxWidth = 'none';
+  const width = Math.ceil(el.getBoundingClientRect().width);
+  el.style.flex = prev.flex;
+  el.style.width = prev.width;
+  el.style.minWidth = prev.minWidth;
+  el.style.maxWidth = prev.maxWidth;
+  return width;
+}
+
+function measureCompactWidth(inner: HTMLElement | null, viewportW: number) {
   if (!inner) return Math.min(viewportW - 32, 560);
 
-  const gap = Number.parseFloat(getComputedStyle(inner).columnGap || getComputedStyle(inner).gap) || 16;
+  const gap =
+    Number.parseFloat(getComputedStyle(inner).columnGap || getComputedStyle(inner).gap) || 16;
   const parts = [...inner.children].filter((child): child is HTMLElement => {
     if (!(child instanceof HTMLElement)) return false;
     const style = getComputedStyle(child);
-    return style.display !== 'none' && child.getBoundingClientRect().width > 1;
+    return style.display !== 'none' && style.visibility !== 'hidden';
   });
 
-  const content = parts.reduce((sum, child, index) => {
-    const width = child.scrollWidth || child.getBoundingClientRect().width;
-    return sum + width + (index > 0 ? gap : 0);
+  const summed = parts.reduce((sum, child, index) => {
+    return sum + intrinsicWidth(child) + (index > 0 ? gap : 0);
   }, 0);
 
-  return Math.min(viewportW - 24, content + padX * 2 + 4);
+  // Prefer live layout width when available (more accurate than a sum).
+  const laidOut = Math.ceil(inner.getBoundingClientRect().width);
+  const content = Math.max(summed, laidOut);
+
+  return Math.min(
+    viewportW - 48,
+    Math.max(320, content + COMPACT_PAD_X * 2 + COMPACT_BREATHING),
+  );
 }
 
-function applyShellProgress(shell: HTMLElement, t: number, viewportW: number, compactWidth: number) {
-  const compactInset = 8;
-  const padX = gsap.utils.interpolate(expandedPadX(viewportW), compactInset)(t);
-  const padY = gsap.utils.interpolate(0, compactInset)(t);
-  const width = gsap.utils.interpolate(viewportW, compactWidth)(t);
-  const minH = gsap.utils.interpolate(88, 0)(t);
-  const radius = gsap.utils.interpolate(0, 9999)(t);
-  const marginTop = gsap.utils.interpolate(0, 12)(t);
-  const bgAlpha = t;
-  const shadow = t;
-
-  shell.style.setProperty('--nav-morph', String(t));
-  shell.style.width = `${width}px`;
-  shell.style.maxWidth = `${viewportW}px`;
-  shell.style.marginLeft = 'auto';
-  shell.style.marginRight = 'auto';
-  shell.style.marginTop = `${marginTop}px`;
-  shell.style.borderRadius = `${radius}px`;
-  shell.style.minHeight = minH > 4 ? `${minH}px` : '0px';
-  shell.style.height = t > 0.8 ? 'auto' : '';
-  shell.style.paddingLeft = `${padX}px`;
-  shell.style.paddingRight = `${padX}px`;
-  shell.style.paddingTop = `${padY}px`;
-  shell.style.paddingBottom = `${padY}px`;
-  shell.style.display = 'flex';
-  shell.style.alignItems = 'center';
-  shell.style.overflow = 'visible';
-  shell.style.backgroundColor = `rgba(255, 255, 255, ${bgAlpha})`;
-  shell.style.boxShadow =
-    t < 0.04
-      ? 'none'
-      : [
-          `0 0 0 1px rgba(${INK_SHADOW}, ${0.07 * shadow})`,
-          `0 4px 10px rgba(${INK_SHADOW}, ${0.06 * shadow})`,
-          `0 12px 28px rgba(${INK_SHADOW}, ${0.1 * shadow})`,
-        ].join(', ');
-}
-
-function applyHideItemsProgress(items: HTMLElement[], t: number) {
-  items.forEach((el) => {
-    const local = gsap.utils.clamp(0, 1, (t - 0.08) / 0.5);
-    const eased = easeMorph(local);
-
-    if (eased >= 0.98) {
-      el.style.display = 'none';
-      el.style.opacity = '0';
-      el.style.maxWidth = '';
-      el.style.transform = '';
-      el.dataset.navCompactCollapsed = 'true';
-      el.setAttribute('aria-hidden', 'true');
-      return;
-    }
-
-    el.style.display = '';
-    el.style.overflow = 'hidden';
-    el.style.whiteSpace = 'nowrap';
-    el.style.opacity = String(1 - eased);
-    el.style.maxWidth = `${Math.round((1 - eased) * 220)}px`;
-    el.style.transform = `scale(${1 - eased * 0.06})`;
-    el.style.pointerEvents = eased > 0.55 ? 'none' : '';
-    el.style.visibility = eased > 0.92 ? 'hidden' : 'visible';
-    delete el.dataset.navCompactCollapsed;
-    el.removeAttribute('aria-hidden');
-  });
-}
-
-function resetHideItems(items: HTMLElement[]) {
-  items.forEach((el) => {
-    el.style.opacity = '';
-    el.style.transform = '';
-    el.style.maxWidth = '';
-    el.style.overflow = '';
-    el.style.whiteSpace = '';
-    el.style.pointerEvents = '';
-    el.style.visibility = '';
-    el.style.display = '';
-    delete el.dataset.navCompactCollapsed;
-    el.removeAttribute('aria-hidden');
-  });
-}
-
-function applyNavGap(navList: HTMLUListElement | null, t: number) {
-  if (!navList) return;
-  navList.style.gap = `${gsap.utils.interpolate(28, 24)(t)}px`;
-}
-
-function applyInnerGap(inner: HTMLElement | null, t: number) {
-  if (!inner) return;
-  inner.style.gap = `${gsap.utils.interpolate(28, 16)(t)}px`;
-}
-
-function applyClusterCenter(
-  cluster: HTMLElement | null,
-  nav: HTMLElement | null,
-  inner: HTMLElement | null,
-  t: number,
-) {
-  if (!cluster) return;
-
-  if (t < 0.04) {
-    cluster.style.justifyContent = '';
-    cluster.style.paddingLeft = '';
-    cluster.style.paddingRight = '';
-    cluster.style.gap = '';
-    cluster.style.flex = '';
-    if (nav) nav.style.flex = '';
-    if (inner) inner.style.justifyContent = '';
-    return;
-  }
-
-  cluster.style.flex = '0 1 auto';
-  cluster.style.justifyContent = 'flex-start';
-  cluster.style.paddingLeft = '0px';
-  cluster.style.paddingRight = '0px';
-  cluster.style.gap = `${gsap.utils.interpolate(24, 18)(t)}px`;
-  if (nav) nav.style.flex = '0 0 auto';
-  if (inner) inner.style.justifyContent = 'flex-start';
-}
-
-function applyLogoProgress(
-  wordmark: HTMLElement | null,
-  mark: HTMLElement | null,
-  t: number,
-  wordmarkWidth: number,
-) {
-  if (!wordmark || !mark) return;
-
-  const lp = gsap.utils.clamp(0, 1, (t - 0.04) / 0.42);
-  const le = easeMorph(lp);
-  const markSize = 40;
-
-  if (le < 0.02) {
-    wordmark.style.width = '';
-    wordmark.style.opacity = '';
-    wordmark.style.visibility = '';
-    wordmark.style.pointerEvents = '';
-    wordmark.style.overflow = '';
-    wordmark.querySelector('a')?.removeAttribute('tabindex');
-    mark.style.width = '0px';
-    mark.style.opacity = '0';
-    mark.style.visibility = 'hidden';
-    mark.style.pointerEvents = 'none';
-    mark.setAttribute('aria-hidden', 'true');
-    return;
-  }
-
-  wordmark.style.overflow = 'hidden';
-  wordmark.style.width = `${Math.max(0, wordmarkWidth * (1 - le))}px`;
-  wordmark.style.opacity = String(1 - le);
-  wordmark.style.visibility = le > 0.95 ? 'hidden' : 'visible';
-  wordmark.style.pointerEvents = le > 0.5 ? 'none' : 'auto';
-  wordmark.querySelector('a')?.setAttribute('tabindex', le > 0.5 ? '-1' : '0');
-
-  mark.style.overflow = 'hidden';
-  mark.style.width = `${markSize * le}px`;
-  mark.style.opacity = String(le);
-  mark.style.visibility = le < 0.05 ? 'hidden' : 'visible';
-  mark.style.pointerEvents = le > 0.5 ? 'auto' : 'none';
-  mark.setAttribute('aria-hidden', le < 0.5 ? 'true' : 'false');
-}
-
-function setHideItemsCollapsed(items: HTMLElement[], collapsed: boolean) {
-  items.forEach((el) => {
-    if (collapsed) {
-      el.dataset.navCompactCollapsed = 'true';
-      el.style.display = 'none';
-      el.setAttribute('aria-hidden', 'true');
-    } else {
-      delete el.dataset.navCompactCollapsed;
-      el.style.display = '';
-      el.removeAttribute('aria-hidden');
-    }
-  });
-}
-
+/**
+ * Scroll only toggles compact state. The browser animates `--nav-morph` via CSS
+ * (@see nav-morph.css) — same pattern as Airbnb’s header (threshold + soft tween).
+ */
 export function useNavScrollMorph(
-  reducedMotion: boolean,
+  _reducedMotion: boolean,
   refs: NavScrollMorphRefs,
   onProgress?: (progress: number) => void,
 ) {
-  const [compactUi, setCompactUi] = useState(false);
+  const [compactUi, setCompactUi] = useState(
+    () => typeof window !== 'undefined' && window.scrollY > COLLAPSE_AT,
+  );
   const [desktopMode, setDesktopMode] = useState(
     () => typeof window !== 'undefined' && window.matchMedia(DESKTOP_MQ).matches,
   );
   const [mobileScrolled, setMobileScrolled] = useState(
     () => typeof window !== 'undefined' && window.scrollY > NAV_SCROLL_THRESHOLD,
   );
-  const compactUiRef = useRef(false);
+  const collapsedRef = useRef(false);
   const wordmarkWidthRef = useRef(220);
 
   useEffect(() => {
@@ -246,144 +102,253 @@ export function useNavScrollMorph(
   useLayoutEffect(() => {
     const shell = refs.shellRef.current;
     const header = refs.headerRef.current;
-    if (!shell || !header) return;
-
+    const inner = refs.innerRef.current;
     const wordmark = refs.wordmarkRef.current;
     const mark = refs.markRef.current;
-    const navList = refs.navListRef.current;
-    const inner = refs.innerRef.current;
-    const cluster = header.querySelector<HTMLElement>('[data-nav-cluster]');
-    const nav = navList?.parentElement ?? null;
+    if (!shell || !header) return;
 
-    const isDesktop = () => desktopMode;
-
-    const measureWordmark = () => {
-      if (!wordmark) return;
-      const prev = wordmark.style.opacity;
-      wordmark.style.opacity = '1';
-      wordmark.style.visibility = 'visible';
-      wordmark.style.width = '';
-      const w = Math.max(wordmark.scrollWidth, wordmark.getBoundingClientRect().width);
-      wordmark.style.opacity = prev;
-      if (w > 40) wordmarkWidthRef.current = w;
-    };
-
-    const applyFrame = (rawP: number) => {
-      const t = easeMorph(gsap.utils.clamp(0, 1, rawP));
+    const writeMetrics = () => {
       const vw = window.innerWidth;
-      const hideItems = gsap.utils.toArray<HTMLElement>('[data-nav-compact-hide]', header);
+      shell.style.setProperty('--nav-expanded-w', `${vw}px`);
+      shell.style.setProperty('--nav-pad-expanded', `${expandedPadX(vw)}px`);
 
-      applyHideItemsProgress(hideItems, t);
-      applyNavGap(navList, t);
-      applyInnerGap(inner, t);
-      applyLogoProgress(wordmark, mark, t, wordmarkWidthRef.current);
-      applyClusterCenter(cluster, nav, inner, t);
-      const compactPadX = gsap.utils.interpolate(expandedPadX(vw), 8)(t);
-      applyShellProgress(shell, t, vw, measureCompactWidth(inner, compactPadX, vw));
-
-      const nextCompact = t > 0.72;
-      if (nextCompact !== compactUiRef.current) {
-        compactUiRef.current = nextCompact;
-        setCompactUi(nextCompact);
-      }
-      onProgress?.(t);
-    };
-
-    const resetLogo = () => {
       if (wordmark) {
-        wordmark.style.width = '';
-        wordmark.style.opacity = '';
-        wordmark.style.visibility = '';
-        wordmark.style.pointerEvents = '';
-        wordmark.style.overflow = '';
-        wordmark.querySelector('a')?.removeAttribute('tabindex');
+        const prevW = wordmark.style.width;
+        const prevO = wordmark.style.opacity;
+        wordmark.style.width = 'auto';
+        wordmark.style.opacity = '1';
+        const w = Math.max(wordmark.scrollWidth, wordmark.getBoundingClientRect().width);
+        wordmark.style.width = prevW;
+        wordmark.style.opacity = prevO;
+        if (w > 40) {
+          wordmarkWidthRef.current = w;
+          shell.style.setProperty('--nav-wordmark-w', `${w}px`);
+        }
       }
+
+      // Measure final pill with compact-hidden links removed + mark shown.
+      const hideItems = header.querySelectorAll<HTMLElement>('[data-nav-compact-hide]');
+      const cluster = header.querySelector<HTMLElement>('[data-nav-cluster]');
+      const nav = header.querySelector<HTMLElement>('nav[aria-label="Main"]');
+      const savedHide = [...hideItems].map((el) => el.style.display);
+      const savedCluster = cluster
+        ? { flex: cluster.style.flex, width: cluster.style.width, minWidth: cluster.style.minWidth }
+        : null;
+      const savedNav = nav ? { flex: nav.style.flex, width: nav.style.width } : null;
+      const savedInner = inner
+        ? {
+            width: inner.style.width,
+            justifyContent: inner.style.justifyContent,
+            gap: inner.style.gap,
+          }
+        : null;
+
+      hideItems.forEach((el) => {
+        el.style.display = 'none';
+      });
+      if (cluster) {
+        cluster.style.flex = '0 0 auto';
+        cluster.style.width = 'max-content';
+        cluster.style.minWidth = 'max-content';
+      }
+      if (nav) {
+        nav.style.flex = '0 0 auto';
+        nav.style.width = 'max-content';
+        nav.style.minWidth = 'max-content';
+      }
+      const prevShellWidth = shell.style.width;
+      // Drop the animated width so flex children can report their real size.
+      shell.style.width = 'max-content';
+      if (inner) {
+        inner.style.flex = '0 0 auto';
+        inner.style.width = 'max-content';
+        inner.style.minWidth = 'max-content';
+        inner.style.justifyContent = 'flex-start';
+        inner.style.gap = '20px';
+      }
+
+      const wmDisplay = wordmark?.style.display ?? '';
+      const mkWidth = mark?.style.width ?? '';
+      const mkOpacity = mark?.style.opacity ?? '';
+      const mkVisibility = mark?.style.visibility ?? '';
+      const mkDisplay = mark?.style.display ?? '';
+      if (wordmark) wordmark.style.display = 'none';
       if (mark) {
-        mark.style.width = '';
-        mark.style.opacity = '';
-        mark.style.visibility = '';
-        mark.style.pointerEvents = '';
-        mark.style.overflow = '';
-        mark.setAttribute('aria-hidden', 'true');
+        mark.style.display = 'block';
+        mark.style.width = '40px';
+        mark.style.opacity = '1';
+        mark.style.visibility = 'visible';
       }
+
+      // Expanded-only auth (Log in) must not inflate the compact pill target.
+      const loginLink = header.querySelector<HTMLElement>('[data-nav-auth] a[href="/login"]');
+      const loginDisplay = loginLink?.style.display ?? '';
+      if (loginLink) loginLink.style.display = 'none';
+
+      // Force compact link labels during measure (Find Doctors → Doctors, etc.).
+      const labelSpans = header.querySelectorAll<HTMLElement>(
+        '[data-nav-list] [data-nav-item] span.whitespace-nowrap',
+      );
+      const savedLabels = [...labelSpans].map((span) => span.textContent);
+      labelSpans.forEach((span) => {
+        const full = span.textContent?.trim() ?? '';
+        if (full === 'Find Doctors') span.textContent = 'Doctors';
+        else if (full === 'Health Packages') span.textContent = 'Packages';
+      });
+
+      void inner?.offsetWidth;
+      const compactW = measureCompactWidth(inner, vw);
+
+      hideItems.forEach((el, i) => {
+        el.style.display = savedHide[i];
+      });
+      if (cluster && savedCluster) {
+        cluster.style.flex = savedCluster.flex;
+        cluster.style.width = savedCluster.width;
+        cluster.style.minWidth = savedCluster.minWidth;
+      }
+      if (nav && savedNav) {
+        nav.style.flex = savedNav.flex;
+        nav.style.width = savedNav.width;
+      }
+      shell.style.width = prevShellWidth;
+      if (inner && savedInner) {
+        inner.style.flex = '';
+        inner.style.minWidth = '';
+        inner.style.width = savedInner.width;
+        inner.style.justifyContent = savedInner.justifyContent;
+        inner.style.gap = savedInner.gap;
+      }
+      if (wordmark) wordmark.style.display = wmDisplay;
+      if (mark) {
+        mark.style.display = mkDisplay;
+        mark.style.width = mkWidth;
+        mark.style.opacity = mkOpacity;
+        mark.style.visibility = mkVisibility;
+      }
+      if (loginLink) loginLink.style.display = loginDisplay;
+      labelSpans.forEach((span, i) => {
+        span.textContent = savedLabels[i] ?? span.textContent;
+      });
+      shell.style.setProperty('--nav-compact-w', `${compactW}px`);
     };
 
-    if (!isDesktop()) {
-      ScrollTrigger.getById(SCROLL_TRIGGER_ID)?.kill();
-      shell.style.cssText = '';
-      shell.style.removeProperty('--nav-morph');
-      resetLogo();
-      if (navList) navList.style.gap = '';
-      if (inner) inner.style.gap = '';
-      applyClusterCenter(cluster, nav, inner, 0);
-      return;
-    }
+    const ensureFits = () => {
+      if (!collapsedRef.current) return;
+      const shellRect = shell.getBoundingClientRect();
+      const authEl = header.querySelector<HTMLElement>('[data-nav-auth]');
+      if (!authEl || shellRect.width < 80) return;
+      const authRect = authEl.getBoundingClientRect();
+      const markRect = mark?.getBoundingClientRect();
+      const rightShort = Math.max(0, COMPACT_PAD_X - (shellRect.right - authRect.right));
+      const leftShort = markRect
+        ? Math.max(0, COMPACT_PAD_X - (markRect.left - shellRect.left))
+        : 0;
+      const extra = Math.ceil(rightShort + leftShort);
+      if (extra < 2) return;
+      shell.style.setProperty('--nav-compact-w', `${Math.ceil(shellRect.width + extra)}px`);
+    };
 
-    measureWordmark();
+    writeMetrics();
 
-    if (reducedMotion) {
-      ScrollTrigger.getById(SCROLL_TRIGGER_ID)?.kill();
-
-      const applyReduced = () => {
-        const rawP = window.scrollY > NAV_SCROLL_THRESHOLD ? 1 : 0;
-        const hideItems = gsap.utils.toArray<HTMLElement>('[data-nav-compact-hide]', header);
-        setHideItemsCollapsed(hideItems, rawP === 1);
-        applyLogoProgress(wordmark, mark, rawP, wordmarkWidthRef.current);
-        applyNavGap(navList, rawP);
-        applyInnerGap(inner, rawP);
-        applyClusterCenter(cluster, nav, inner, rawP);
-        const vw = window.innerWidth;
-        const compactPadX = gsap.utils.interpolate(expandedPadX(vw), 8)(rawP);
-        applyShellProgress(shell, rawP, vw, measureCompactWidth(inner, compactPadX, vw));
-        compactUiRef.current = rawP === 1;
-        setCompactUi(rawP === 1);
-        onProgress?.(rawP);
+    let indicatorRaf = 0;
+    const stopIndicatorLoop = () => {
+      cancelAnimationFrame(indicatorRaf);
+      indicatorRaf = 0;
+    };
+    const startIndicatorLoop = () => {
+      if (!onProgress) return;
+      stopIndicatorLoop();
+      const tick = () => {
+        const raw = getComputedStyle(shell).getPropertyValue('--nav-morph').trim();
+        const value = Number.parseFloat(raw);
+        onProgress(Number.isFinite(value) ? value : collapsedRef.current ? 1 : 0);
+        indicatorRaf = requestAnimationFrame(tick);
       };
-
-      applyReduced();
-      window.addEventListener('scroll', applyReduced, { passive: true });
-      return () => window.removeEventListener('scroll', applyReduced);
-    }
-
-    const hideItems = gsap.utils.toArray<HTMLElement>('[data-nav-compact-hide]', header);
-
-    const st = ScrollTrigger.create({
-      id: SCROLL_TRIGGER_ID,
-      start: 'top top',
-      end: `+=${MORPH_SCROLL_DISTANCE}`,
-      scrub: SCRUB_SMOOTHING,
-      invalidateOnRefresh: true,
-      onUpdate: (self) => applyFrame(self.progress),
-    });
-
-    applyFrame(st.progress);
-    requestAnimationFrame(() => {
-      measureWordmark();
-      ScrollTrigger.refresh();
-    });
-
-    const mq = window.matchMedia(DESKTOP_MQ);
-    const onResize = () => {
-      measureWordmark();
-      ScrollTrigger.refresh();
+      tick();
     };
+
+    const applyCollapsed = (collapsed: boolean, animate: boolean) => {
+      if (collapsed) {
+        // Collapse: measure tight pill first, then morph 0 → 1 so width can shrink to it.
+        writeMetrics();
+        setCompactUi(true);
+      } else {
+        // Expand: pin current pill width as the morph start so width doesn't jump.
+        const currentW = Math.round(shell.getBoundingClientRect().width);
+        if (currentW > 80 && currentW < window.innerWidth - 24) {
+          shell.style.setProperty('--nav-compact-w', `${currentW}px`);
+        } else {
+          writeMetrics();
+        }
+      }
+
+      collapsedRef.current = collapsed;
+      shell.dataset.compact = collapsed ? 'true' : 'false';
+
+      if (!animate) {
+        stopIndicatorLoop();
+        shell.style.transition = 'none';
+        void shell.offsetWidth;
+        shell.style.transition = '';
+        setCompactUi(collapsed);
+        onProgress?.(collapsed ? 1 : 0);
+        if (collapsed) requestAnimationFrame(() => ensureFits());
+        return;
+      }
+
+      // Expand: keep compact labels until morph finishes (avoids mid-flight CTA jump).
+      if (!collapsed) {
+        window.setTimeout(() => {
+          if (!collapsedRef.current) setCompactUi(false);
+        }, 1100);
+      }
+      startIndicatorLoop();
+    };
+
+    const onTransitionEnd = (event: TransitionEvent) => {
+      if (event.target !== shell) return;
+      if (event.propertyName && event.propertyName !== '--nav-morph') return;
+      stopIndicatorLoop();
+      onProgress?.(collapsedRef.current ? 1 : 0);
+      setCompactUi(collapsedRef.current);
+      // Remeasure after labels settle, then grow the pill if the mark or CTA still clips.
+      requestAnimationFrame(() => {
+        writeMetrics();
+        requestAnimationFrame(() => ensureFits());
+      });
+    };
+    shell.addEventListener('transitionend', onTransitionEnd);
+
+    const initial = window.scrollY > COLLAPSE_AT;
+    applyCollapsed(initial, false);
+
+    const onScroll = () => {
+      if (!window.matchMedia(DESKTOP_MQ).matches) return;
+      const y = window.scrollY;
+      const next = collapsedRef.current ? y > EXPAND_AT : y > COLLAPSE_AT;
+      if (next === collapsedRef.current) return;
+      applyCollapsed(next, true);
+    };
+
+    const onResize = () => writeMetrics();
+
+    window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
-    mq.addEventListener('change', onResize);
 
     return () => {
+      stopIndicatorLoop();
+      shell.removeEventListener('transitionend', onTransitionEnd);
+      window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
-      mq.removeEventListener('change', onResize);
-      st.kill();
-      resetHideItems(hideItems);
-      shell.style.cssText = '';
-      shell.style.removeProperty('--nav-morph');
-      if (navList) navList.style.gap = '';
-      if (inner) inner.style.gap = '';
-      applyClusterCenter(cluster, nav, inner, 0);
-      resetLogo();
+      delete shell.dataset.compact;
+      shell.style.removeProperty('--nav-expanded-w');
+      shell.style.removeProperty('--nav-compact-w');
+      shell.style.removeProperty('--nav-pad-expanded');
+      shell.style.removeProperty('--nav-wordmark-w');
+      shell.style.transition = '';
     };
   }, [
-    reducedMotion,
     refs.shellRef,
     refs.innerRef,
     refs.wordmarkRef,
@@ -395,38 +360,20 @@ export function useNavScrollMorph(
   ]);
 
   useEffect(() => {
+    const shell = refs.shellRef.current;
     const onScroll = () => {
-      if (window.matchMedia(DESKTOP_MQ).matches) return;
-      setMobileScrolled(window.scrollY > NAV_SCROLL_THRESHOLD);
+      if (window.matchMedia(DESKTOP_MQ).matches) {
+        if (shell) delete shell.dataset.scrolled;
+        return;
+      }
+      const scrolled = window.scrollY > NAV_SCROLL_THRESHOLD;
+      setMobileScrolled(scrolled);
+      if (shell) shell.dataset.scrolled = scrolled ? 'true' : 'false';
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  useEffect(() => {
-    const shell = refs.shellRef.current;
-    if (!shell || window.matchMedia(DESKTOP_MQ).matches) return;
-    shell.style.width = '100%';
-    shell.style.maxWidth = 'none';
-    shell.style.marginTop = '0';
-    shell.style.borderRadius = '0';
-    shell.style.minHeight = '';
-    shell.style.paddingLeft = '';
-    shell.style.paddingRight = '';
-    shell.style.paddingTop = '';
-    shell.style.paddingBottom = '';
-    shell.style.display = '';
-    shell.style.alignItems = '';
-    shell.style.height = '';
-    shell.style.overflow = '';
-    shell.style.transition =
-      'background-color 0.45s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1)';
-    shell.style.backgroundColor = mobileScrolled ? 'rgba(255, 255, 255, 0.96)' : 'transparent';
-    shell.style.boxShadow = mobileScrolled
-      ? `0 1px 0 rgba(${INK_SHADOW}, 0.06), 0 8px 24px -12px rgba(${INK_SHADOW}, 0.08)`
-      : 'none';
-  }, [mobileScrolled, refs.shellRef]);
+  }, [refs.shellRef]);
 
   return { compactUi, mobileScrolled };
 }

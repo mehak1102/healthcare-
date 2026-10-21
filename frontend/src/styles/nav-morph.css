@@ -1,0 +1,184 @@
+/**
+ * Nav morph driven by --nav-morph (0 = expanded, 1 = compact).
+ * Expand: shell widens slightly ahead of content (no cramped flash, no empty pill).
+ * Collapse: content tucks away as the pill shrinks.
+ */
+@property --nav-morph {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+@layer components {
+  [data-nav-shell] {
+    --nav-morph: 0;
+    --nav-expanded-w: 100vw;
+    --nav-compact-w: 36rem;
+    --nav-pad-expanded: 1.75rem;
+    --nav-wordmark-w: 14rem;
+    /*
+      Reveal starts once morph is below ~0.78 (shell already opening)
+      and finishes by ~0.12 — overlaps width growth instead of waiting until the end.
+    */
+    --nav-reveal: max(0, min(1, (0.78 - var(--nav-morph)) / 0.66));
+    /* Mark + wordmark crossfade around the middle of the morph */
+    --nav-mark: max(0, min(1, (var(--nav-morph) - 0.12) / 0.55));
+
+    width: calc(
+      var(--nav-expanded-w) - (var(--nav-expanded-w) - var(--nav-compact-w)) * var(--nav-morph)
+    );
+    max-width: 100%;
+    margin-top: calc(0.75rem * var(--nav-morph));
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: calc(9999px * var(--nav-morph));
+    /* 1.75rem compact inset keeps the round mark and CTA inside the pill caps */
+    padding-left: calc(
+      var(--nav-pad-expanded) + (1.75rem - var(--nav-pad-expanded)) * var(--nav-morph)
+    );
+    padding-right: calc(
+      var(--nav-pad-expanded) + (1.75rem - var(--nav-pad-expanded)) * var(--nav-morph)
+    );
+    padding-top: calc(0.5rem * var(--nav-morph));
+    padding-bottom: calc(0.5rem * var(--nav-morph));
+    min-height: calc(5.5rem * (1 - var(--nav-morph)));
+    display: flex;
+    align-items: center;
+    overflow: visible;
+    background-color: rgb(255 255 255 / var(--nav-morph));
+    box-shadow:
+      0 0 0 1px rgb(48 43 43 / calc(0.07 * var(--nav-morph))),
+      0 4px 10px rgb(48 43 43 / calc(0.06 * var(--nav-morph))),
+      0 12px 28px rgb(48 43 43 / calc(0.1 * var(--nav-morph)));
+    /* Slow, soft morph — collapse & expand share the same ease for consistency */
+    transition: --nav-morph 1.05s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  [data-nav-shell][data-compact='true'] {
+    --nav-morph: 1;
+    transition: --nav-morph 1.05s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  [data-nav-shell][data-compact='false'] {
+    transition: --nav-morph 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  [data-nav-shell] [data-nav-inner] {
+    width: 100%;
+    min-width: 0;
+    /* Keep ~1.25rem between cluster and CTA when compact */
+    column-gap: calc(1.75rem - 0.5rem * var(--nav-morph));
+    row-gap: calc(1.75rem - 0.5rem * var(--nav-morph));
+  }
+
+  [data-nav-shell] [data-nav-cluster] {
+    flex-grow: calc(1 - var(--nav-morph));
+    flex-shrink: 1;
+    flex-basis: auto;
+    min-width: 0;
+    column-gap: calc(1.5rem - 0.375rem * var(--nav-morph));
+  }
+
+  [data-nav-shell] nav[aria-label='Main'] {
+    flex-grow: calc(1 - var(--nav-morph));
+    flex-shrink: 1;
+    flex-basis: auto;
+    min-width: 0;
+  }
+
+  /* Compact: lock content size so CTA cannot overlap links */
+  [data-nav-shell][data-compact='true'] [data-nav-cluster],
+  [data-nav-shell][data-compact='true'] nav[aria-label='Main'] {
+    flex-shrink: 0;
+    min-width: min-content;
+  }
+
+  [data-nav-shell] [data-nav-auth] {
+    flex-shrink: 0;
+  }
+
+  [data-nav-shell] [data-nav-list] {
+    column-gap: calc(1.75rem - 0.25rem * var(--nav-morph));
+  }
+
+  [data-nav-shell] [data-nav-compact-hide] {
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: calc(16rem * var(--nav-reveal));
+    opacity: var(--nav-reveal);
+    transform: translate3d(calc(-0.35rem * (1 - var(--nav-reveal))), 0, 0);
+    pointer-events: none;
+  }
+
+  [data-nav-shell][data-compact='false'] [data-nav-compact-hide] {
+    pointer-events: auto;
+  }
+
+  [data-nav-shell] [data-nav-logo-wordmark] {
+    overflow: hidden;
+    flex-shrink: 0;
+    width: calc(var(--nav-wordmark-w) * var(--nav-reveal));
+    opacity: var(--nav-reveal);
+    transform: translate3d(calc(-0.25rem * (1 - var(--nav-reveal))), 0, 0);
+  }
+
+  [data-nav-shell] [data-nav-logo-mark] {
+    overflow: hidden;
+    flex-shrink: 0;
+    width: calc(2.5rem * var(--nav-mark));
+    opacity: var(--nav-mark);
+    margin-left: 0;
+    pointer-events: none;
+  }
+
+  [data-nav-shell][data-compact='true'] [data-nav-logo-mark] {
+    pointer-events: auto;
+  }
+
+  @media (max-width: 1023px) {
+    [data-nav-shell] {
+      width: 100% !important;
+      max-width: none !important;
+      margin-top: 0 !important;
+      border-radius: 0 !important;
+      min-height: unset !important;
+      padding: 0 !important;
+      overflow: visible;
+      background-color: transparent;
+      box-shadow: none;
+      transition:
+        background-color 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    [data-nav-shell][data-scrolled='true'] {
+      background-color: rgb(255 255 255 / 0.96);
+      box-shadow:
+        0 1px 0 rgb(48 43 43 / 0.06),
+        0 8px 24px -12px rgb(48 43 43 / 0.08);
+    }
+
+    [data-nav-shell] [data-nav-logo-wordmark] {
+      width: auto !important;
+      opacity: 1 !important;
+      transform: none !important;
+      pointer-events: auto !important;
+    }
+
+    [data-nav-shell] [data-nav-logo-mark] {
+      display: none !important;
+    }
+
+    [data-nav-shell] [data-nav-compact-hide] {
+      max-width: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+      pointer-events: auto !important;
+    }
+
+    [data-nav-shell] [data-nav-cluster],
+    [data-nav-shell] nav[aria-label='Main'] {
+      flex-grow: 1 !important;
+    }
+  }
+}
