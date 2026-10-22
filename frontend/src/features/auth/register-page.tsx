@@ -32,7 +32,7 @@ export function RegisterPage() {
     resolver: zodResolver(registerSchema),
     defaultValues: {
       fullName: '',
-      email: '',
+      email: params.get('email')?.trim() ?? '',
       password: '',
       acceptTerms: false,
       accountType,
