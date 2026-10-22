@@ -16,7 +16,7 @@ export interface PinCoverage {
   inPilotArea: boolean;
   stateCode: string | null;
   areaLabel: string | null;
-  bookingOpen: false;
+  bookingOpen: boolean;
   message: string;
 }
 

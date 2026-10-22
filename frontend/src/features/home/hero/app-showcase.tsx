@@ -458,12 +458,12 @@ export function AppShowcase({
 
   return (
     <div
-      className="mx-auto mt-16 w-full max-w-[1180px] px-4 sm:px-6"
+      className="mx-auto mt-6 w-full max-w-[1180px] px-4 sm:px-6"
       onPointerMove={onMove}
       onPointerLeave={() => setShift({ x: 0, y: 0 })}
     >
-      <div className="hidden items-start justify-center gap-9 lg:flex">
-        <div className="w-[300px] pt-[70px]" style={left}>
+      <div className="hidden items-start justify-center gap-6 lg:flex">
+        <div className="w-[300px] pt-6" style={left}>
           {doctor ? (
             <DoctorCardPanel doctor={doctor} profile={profile} copy={copy} />
           ) : (
@@ -484,7 +484,7 @@ export function AppShowcase({
             mode={mode}
           />
         </div>
-        <div className="w-[300px] pt-5" style={right}>
+        <div className="w-[300px] pt-1" style={right}>
           <ConfirmedToast
             copy={copy}
             upcoming={upcoming}

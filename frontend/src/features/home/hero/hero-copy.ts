@@ -10,7 +10,7 @@ export const HERO_COPY = {
     h1Lead: 'Healthcare that feels',
     h1Emph: 'sukoon',
     h1Prefix: 'like ',
-    sub: 'Verified doctors, real-time availability and records only you control — all in one calm, simple app.',
+    sub: 'Verified doctors, real-time availability only you control',
     clinic: 'In-clinic',
     video: 'Video consult',
     searchLabel: 'Doctor, specialty or symptom',

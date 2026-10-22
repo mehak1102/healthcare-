@@ -51,7 +51,7 @@ export function HomeHero() {
   );
 
   return (
-    <section data-sukoon-hero lang={copy.htmlLang} className="relative bg-white pt-6 pb-24 sm:pb-10">
+    <section data-sukoon-hero lang={copy.htmlLang} className="relative bg-white pt-2 pb-4 sm:pb-4">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="hero-grid absolute inset-0" />
         <div className="absolute top-[38%] left-[42%] size-[28rem] rounded-full bg-[#DCD8FF] opacity-90 blur-[90px]" />
@@ -60,7 +60,7 @@ export function HomeHero() {
         <div className="absolute right-[22%] bottom-[12%] size-[12rem] rounded-full bg-[#FFE1D3] opacity-80 blur-[80px]" />
       </div>
 
-      <div className="relative mx-auto flex max-w-[900px] flex-col items-center gap-[22px] px-4 pt-8 sm:px-6 lg:pt-[48px]">
+      <div className="relative mx-auto flex max-w-[900px] flex-col items-center gap-[22px] px-4 pt-2 sm:px-6">
         <Link
           to="/doctors?takingBookings=1"
           className="hero-glass hero-rise inline-flex h-11 items-center gap-2 rounded-full px-2 pr-3 text-[13.5px] text-[var(--hero-body)]"
