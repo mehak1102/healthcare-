@@ -17,8 +17,8 @@ export function HomePage() {
 
   return (
     <>
-      <HomeVisitHero />
       <HomeHero />
+      <HomeVisitHero />
       <HomeServices />
       <HomeTrust />
     </>
