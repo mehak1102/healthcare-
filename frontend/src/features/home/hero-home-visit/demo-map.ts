@@ -49,6 +49,16 @@ export function pointAt(frac: number): [number, number] {
   return ROUTE[ROUTE.length - 1]!;
 }
 
+/** Degrees for a top-down car icon (0° = north / up on the map). */
+export function headingAt(frac: number): number {
+  const eps = 0.012;
+  const a = pointAt(Math.max(0, frac - eps));
+  const b = pointAt(Math.min(1, frac + eps));
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  return (Math.atan2(dy, dx) * 180) / Math.PI + 90;
+}
+
 export function projectToPlane(x: number, y: number) {
   const cy = PLANE_H / 2;
   const py = (y / 560) * PLANE_H;

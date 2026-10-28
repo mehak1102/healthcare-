@@ -9,10 +9,56 @@ import {
   ROUTE_LEN,
   THEMES,
   TRIP_SECS,
+  headingAt,
   pointAt,
   projectToPlane,
   type MapTheme,
 } from './demo-map';
+
+function DoctorCarMarker({ heading, jump }: { heading: number; jump: boolean }) {
+  return (
+    <div className="flex flex-col items-center">
+      <div className="relative z-[2] mb-0.5 flex flex-col items-center">
+        <div className="size-[46px] overflow-hidden rounded-full border-[3px] border-white bg-white shadow-[0_8px_22px_-8px_rgba(14,18,34,0.55)]">
+          <img src="/home-visit/doctor-preview.png" alt="" className="size-full object-cover object-[center_22%]" />
+        </div>
+        <svg width="18" height="10" viewBox="0 0 18 10" className="-mt-0.5" aria-hidden="true">
+          <path d="M9 10 2.5 2.5h13L9 10Z" fill="#4C4FE0" />
+          <circle cx="9" cy="3.5" r="2.5" fill="#4C4FE0" />
+        </svg>
+      </div>
+      <div
+        className="relative mt-[-2px]"
+        style={{
+          transform: `rotate(${heading.toFixed(1)}deg)`,
+          transition: jump ? 'none' : 'transform 1s linear',
+        }}
+      >
+        <span className="absolute top-1/2 left-1/2 size-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#4C4FE0]/25 blur-md" />
+        <svg width="44" height="58" viewBox="0 0 44 58" fill="none" aria-hidden="true" className="relative drop-shadow-[0_6px_10px_rgba(14,18,34,0.35)]">
+          <path
+            d="M10 18c0-6 4-10 12-10s12 4 12 10l2 14c0 8-6 14-14 14s-14-6-14-14l2-14Z"
+            fill="#FFFFFF"
+            stroke="#FFFFFF"
+            strokeWidth="4"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M14 16h16l1.5 8H12.5L14 16Z"
+            fill="#B8C0D4"
+            stroke="#FFFFFF"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+          <path d="M11 28h22" stroke="#E8EAF1" strokeWidth="2" strokeLinecap="round" />
+          <rect x="13" y="30" width="7" height="10" rx="2" fill="#9AA3B8" stroke="#FFFFFF" strokeWidth="1.5" />
+          <rect x="24" y="30" width="7" height="10" rx="2" fill="#9AA3B8" stroke="#FFFFFF" strokeWidth="1.5" />
+          <path d="M8 38h28" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
+        </svg>
+      </div>
+    </div>
+  );
+}
 
 const ROUTE_D = ROUTE.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x} ${y}`).join('');
 
@@ -45,6 +91,7 @@ export function LiveMapCard({
   const jump = !reduced && ph === 0;
   const pt = pointAt(f);
   const car = projectToPlane(pt[0], pt[1]);
+  const carHeading = headingAt(f);
   const home = projectToPlane(HOME[0], HOME[1]);
   const stageIdx = arrived ? 3 : f > 0.06 ? 2 : 1;
   const stageNames = ['Booked', 'Assigned', 'On the way', 'Arrived'] as const;
@@ -83,7 +130,7 @@ export function LiveMapCard({
         <div
           aria-hidden="true"
           className="absolute inset-0 transition-colors duration-700"
-          style={{ background: night ? '#12151c' : '#e8f0f8' }}
+          style={{ background: night ? '#0a1024' : '#e8f0f8' }}
         />
 
         <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
@@ -95,24 +142,47 @@ export function LiveMapCard({
           <img
             src="/home-visit/map-night.jpg"
             alt=""
-            className={cn('absolute inset-0 size-full object-cover transition-opacity duration-700', !night && 'opacity-0')}
+            className={cn(
+              'absolute inset-0 size-full object-cover object-center transition-opacity duration-700',
+              !night && 'opacity-0',
+            )}
           />
-          <svg viewBox="0 0 600 560" preserveAspectRatio="none" className="absolute inset-0 block size-full">
+          <svg
+            viewBox="0 0 600 560"
+            preserveAspectRatio="none"
+            className={cn('absolute inset-0 block size-full transition-opacity duration-700', night && 'opacity-0')}
+          >
             <defs>
-              <linearGradient id="h30-rgb" x1="0" y1="1" x2="1" y2="0">
-                <stop offset="0" stopColor="#4C4FE0" />
-                <stop offset="1" stopColor="#8C7AF5" />
-              </linearGradient>
-              <filter id="h30-glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="7" />
+              <filter id="h30-route-glow" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="5" />
               </filter>
             </defs>
-            <path d={route} fill="none" stroke="#6E70F0" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" opacity={c.glowOp} filter="url(#h30-glow)" />
-            <path className="h30-flow" d={route} fill="none" stroke={c.routeDash} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="2 12" />
             <path
               d={route}
               fill="none"
-              stroke="url(#h30-rgb)"
+              stroke="#5B8DEF"
+              strokeWidth="16"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.35"
+              filter="url(#h30-route-glow)"
+            />
+            <path d={route} fill="none" stroke="#FFFFFF" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" opacity="0.55" />
+            <path
+              d={route}
+              fill="none"
+              stroke="#FFFFFF"
+              strokeWidth="11"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeDasharray={ROUTE_LEN.toFixed(0)}
+              strokeDashoffset={(ROUTE_LEN * (1 - f)).toFixed(1)}
+              style={{ transition: jump ? 'none' : 'stroke-dashoffset 1s linear' }}
+            />
+            <path
+              d={route}
+              fill="none"
+              stroke="#5B8DEF"
               strokeWidth="7"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -125,7 +195,11 @@ export function LiveMapCard({
           </svg>
         </div>
 
-        <div aria-hidden="true" className="absolute z-[3] -translate-x-1/2 -translate-y-1/2" style={markerStyle(CLINIC[0], CLINIC[1])}>
+        <div
+          aria-hidden="true"
+          className={cn('absolute z-[3] -translate-x-1/2 -translate-y-1/2 transition-opacity duration-700', night && 'opacity-0')}
+          style={markerStyle(CLINIC[0], CLINIC[1])}
+        >
           <div className="flex flex-col items-center gap-1">
             <span className="rounded-[7px] bg-white px-1.5 py-0.5 text-[11px] font-bold whitespace-nowrap text-[#4C4FE0] shadow-[0_6px_14px_-8px_rgba(14,18,34,0.5)]">Clinic</span>
             <span className="grid size-[26px] place-items-center rounded-full border-[3px] border-[#C9CCF8] bg-white">
@@ -135,13 +209,21 @@ export function LiveMapCard({
             </span>
           </div>
         </div>
-        <div aria-hidden="true" className="h30-nearby absolute z-[3] -translate-x-1/2 -translate-y-1/2" style={markerStyle(NEARBY[0]![0], NEARBY[0]![1])}>
+        <div
+          aria-hidden="true"
+          className={cn('h30-nearby absolute z-[3] -translate-x-1/2 -translate-y-1/2 transition-opacity duration-700', night && 'opacity-0')}
+          style={markerStyle(NEARBY[0]![0], NEARBY[0]![1])}
+        >
           <div className="relative size-[30px]">
             <span className="h30-ping bg-emerald-400/35" />
             <span className="relative grid size-[30px] place-items-center rounded-full border-2 border-white bg-[#E3F6EC] text-[10px] font-bold text-[#1C7A50] shadow-[0_8px_18px_-8px_rgba(14,18,34,0.5)]">RD</span>
           </div>
         </div>
-        <div aria-hidden="true" className="h30-nearby absolute z-[3] -translate-x-1/2 -translate-y-1/2" style={markerStyle(NEARBY[1]![0], NEARBY[1]![1])}>
+        <div
+          aria-hidden="true"
+          className={cn('h30-nearby absolute z-[3] -translate-x-1/2 -translate-y-1/2 transition-opacity duration-700', night && 'opacity-0')}
+          style={markerStyle(NEARBY[1]![0], NEARBY[1]![1])}
+        >
           <div className="relative size-[30px]">
             <span className="h30-ping h30-ping2 bg-emerald-400/35" />
             <span className="relative grid size-[30px] place-items-center rounded-full border-2 border-white bg-[#E4F2FF] text-[10px] font-bold text-[#1F5F9E] shadow-[0_8px_18px_-8px_rgba(14,18,34,0.5)]">PM</span>
@@ -149,7 +231,7 @@ export function LiveMapCard({
         </div>
         <div
           aria-hidden="true"
-          className="h30-bob absolute z-[4]"
+          className={cn('h30-bob absolute z-[4] transition-opacity duration-700', night && 'opacity-0')}
           style={{ left: `${home.leftPct.toFixed(2)}%`, top: `${(home.topPx + 4).toFixed(1)}px` }}
         >
           <div className="flex flex-col items-center">
@@ -166,23 +248,15 @@ export function LiveMapCard({
         </div>
         <div
           aria-hidden="true"
-          className="absolute z-[5] -translate-x-1/2 -translate-y-1/2"
+          className={cn('absolute z-[5] -translate-x-1/2 transition-opacity duration-700', night && 'opacity-0')}
           style={{
             left: `${car.leftPct.toFixed(2)}%`,
             top: `${car.topPx.toFixed(1)}px`,
-            transition: jump ? 'none' : 'left 1s linear, top 1s linear',
+            transform: 'translate(-50%, -72%)',
+            transition: jump ? 'none' : 'left 1s linear, top 1s linear, opacity 0.7s',
           }}
         >
-          <div className="relative size-[46px]">
-            <span className="h30-ping bg-indigo-500/30" />
-            <span className="relative grid size-[46px] place-items-center rounded-full border-[3px] border-white bg-linear-to-br from-[#5B5EF2] to-[#8C7AF5] shadow-[0_14px_28px_-10px_rgba(76,79,224,0.8)]">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="5.5" cy="17" r="2.6" />
-                <circle cx="18.5" cy="17" r="2.6" />
-                <path d="M8 17h7l2.5-6H13M17.5 11 16 7h-3M4 14l3-4h5" />
-              </svg>
-            </span>
-          </div>
+          <DoctorCarMarker heading={carHeading} jump={jump} />
         </div>
 
         <div className="absolute top-4 right-4 left-4 z-[6] flex flex-wrap items-start justify-between gap-2.5">
@@ -274,35 +348,56 @@ export function LiveMapCard({
           </div>
         </div>
 
-        <p className="pointer-events-none absolute bottom-[92px] left-4 z-[6] max-w-[70%] text-[10px] leading-snug text-white/85 drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)]">
-          Example area · Map data © Google
+        <p className="pointer-events-none absolute bottom-[88px] left-4 z-[6] max-w-[70%] text-[10px] leading-snug text-white/85 drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)]">
+          {night ? 'Example area · Illustration' : 'Example area · Map data © Google'}
         </p>
-        <div className="h30-fb absolute right-4 bottom-4 left-4 z-[6] flex items-center gap-3.5 rounded-[22px] border border-white bg-white/96 px-4 py-3.5 shadow-[0_30px_60px_-30px_rgba(40,40,110,0.6)] backdrop-blur-[14px]">
-          <span aria-hidden="true" className="grid size-[52px] shrink-0 place-items-center rounded-2xl bg-linear-to-br from-[#FFEFE6] to-[#FFD9C4] text-base font-bold text-[#9A4521]">
-            AR
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="flex items-center gap-1.5 text-base font-semibold">
-              Dr. Ananya Rao
-              <svg width="15" height="15" viewBox="0 0 24 24" role="img" aria-label="Verified">
-                <circle cx="12" cy="12" r="10" fill="#4C4FE0" />
-                <path d="m8 12.5 2.6 2.5L16 9.5" stroke="#FFFFFF" strokeWidth="2.6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        <div
+          className="h30-fb absolute right-3 bottom-3 left-3 z-[6] flex items-center gap-3 rounded-[20px] bg-white px-3.5 py-3 shadow-[0_16px_44px_-18px_rgba(14,18,34,0.28)]"
+          role="group"
+          aria-label="Example assigned doctor (preview)"
+        >
+          <div className="relative shrink-0">
+            <img
+              src="/home-visit/doctor-preview.png"
+              alt=""
+              width={52}
+              height={52}
+              className="size-[52px] rounded-full object-cover object-[center_22%] ring-1 ring-[#ECEEF4]"
+            />
+            <span aria-hidden="true" className="absolute right-0 bottom-0 size-3 rounded-full border-2 border-white bg-[#22C55E]" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-[15px] font-semibold leading-tight text-[#0E1222]">Dr. Ananya Rao</div>
+            <div className="text-[13px] text-[#6B7186]">General Physician</div>
+            <div className="mt-0.5 flex items-center gap-1 text-[12.5px] text-[#6B7186]">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#F5A623" aria-hidden="true">
+                <path d="M12 2l2.9 6.9L22 9.8l-5.2 4.5 1.6 6.9L12 17.8 5.6 21.2 7.2 14.3 2 9.8l7.1-.9L12 2z" />
               </svg>
-            </span>
-            <span className="block text-[13px] text-[#6B7186]">General physician · MBBS, MD · Reg. checked</span>
-          </span>
-          <span aria-hidden="true" className="flex gap-2">
-            <span className="grid size-[42px] place-items-center rounded-[13px] bg-[#EEEDFF]">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4C4FE0" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+              <span>Example profile · Reg. checked</span>
+            </div>
+          </div>
+          <div className="flex shrink-0 gap-2">
+            <button
+              type="button"
+              disabled
+              className="grid size-11 cursor-default place-items-center rounded-full border border-[#ECEEF4] bg-white shadow-[0_4px_14px_-6px_rgba(14,18,34,0.25)]"
+              aria-label="Message (preview only)"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5C6378" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" />
               </svg>
-            </span>
-            <span className="grid size-[42px] place-items-center rounded-[13px] bg-[#0E1222]">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            </button>
+            <button
+              type="button"
+              disabled
+              className="grid size-11 cursor-default place-items-center rounded-full border border-[#ECEEF4] bg-white shadow-[0_4px_14px_-6px_rgba(14,18,34,0.25)]"
+              aria-label="Call (preview only)"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5C6378" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" />
               </svg>
-            </span>
-          </span>
+            </button>
+          </div>
         </div>
       </div>
     </section>
