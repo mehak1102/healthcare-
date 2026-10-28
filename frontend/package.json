@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/ensure-api-for-proxy.mjs && vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "oxlint src",

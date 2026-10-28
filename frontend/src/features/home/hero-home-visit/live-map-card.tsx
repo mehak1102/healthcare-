@@ -11,6 +11,7 @@ import {
   TRIP_SECS,
   VIEWBOX_H,
   VIEWBOX_W,
+  defaultTheme,
   headingAt,
   mapPointPct,
   pointAt,
@@ -66,8 +67,7 @@ export function LiveMapCard({
   reduced: boolean;
   allowTilt: boolean;
 }) {
-  const hour = new Date().getHours();
-  const [theme, setTheme] = useState<MapTheme>(() => (hour >= 19 || hour < 6 ? 'night' : 'day'));
+  const [theme, setTheme] = useState<MapTheme>(() => defaultTheme());
   const [hover, setHover] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
   const night = theme === 'night';
   const c = THEMES[theme];
@@ -104,14 +104,29 @@ export function LiveMapCard({
     'inline-flex min-h-[34px] cursor-pointer items-center gap-1.5 rounded-[9px] border-0 px-2.5 text-[12.5px] font-semibold';
 
   return (
-    <section aria-label="Example of a home visit on its way" className="h30-rv h30-d6 relative min-w-0 flex-[1.12_1_540px]" onMouseMove={onMove} onMouseLeave={() => setHover(null)}>
+    <section
+      aria-label="Example of a home visit on its way"
+      data-h30-map-theme={theme}
+      className="h30-rv h30-d6 h30-map-panel relative h-full min-h-[440px]"
+      onMouseMove={onMove}
+      onMouseLeave={() => setHover(null)}
+    >
       <div
-        className="h30-map relative overflow-hidden rounded-[36px]"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-0 z-[7] w-20 max-lg:hidden"
         style={{
-          border: `1px solid ${c.cardBorder}`,
-          boxShadow: `0 1px 2px rgba(14,18,34,0.04), 0 60px 110px -50px rgba(40,40,120,0.6), inset 0 0 0 6px ${c.inset}`,
-          transform: `perspective(1500px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`,
-          transition: `transform ${hover ? '0.15s' : '0.6s'} cubic-bezier(.2,.7,.2,1), border-color 0.6s`,
+          background: night
+            ? 'linear-gradient(90deg, #ffffff 0%, rgb(255 255 255 / 0.55) 35%, transparent 100%)'
+            : 'linear-gradient(90deg, #ffffff 0%, rgb(255 255 255 / 0.45) 40%, transparent 100%)',
+        }}
+      />
+      <div
+        className="h30-map absolute inset-0 overflow-hidden"
+        style={{
+          borderLeft: `1px solid ${c.cardBorder}`,
+          boxShadow: `inset 0 0 0 1px ${c.inset}`,
+          transform: allowTilt && hover ? `perspective(1500px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)` : undefined,
+          transition: `transform ${hover ? '0.15s' : '0.6s'} cubic-bezier(.2,.7,.2,1), border-color 0.6s, box-shadow 0.6s`,
         }}
       >
         <div
@@ -134,6 +149,13 @@ export function LiveMapCard({
               !night && 'opacity-0',
             )}
           />
+          {night ? (
+            <>
+              <span aria-hidden="true" className="h30-star absolute left-[18%] top-[14%]" />
+              <span aria-hidden="true" className="h30-star absolute left-[42%] top-[8%]" style={{ animationDelay: '0.9s' }} />
+              <span aria-hidden="true" className="h30-star absolute left-[68%] top-[16%]" style={{ animationDelay: '1.8s' }} />
+            </>
+          ) : null}
           <svg
             viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
             preserveAspectRatio="xMidYMid slice"
@@ -274,14 +296,14 @@ export function LiveMapCard({
               night ? 'border border-[#4A5588] bg-[#12162e]/92' : 'border border-white bg-white/92',
             )}
           >
-            <button type="button" aria-pressed={!night} onClick={() => setTheme('day')} className={cn(seg, night ? 'bg-transparent text-[#3B4155] opacity-75' : 'bg-[#0E1222] text-white')}>
+            <button type="button" aria-pressed={!night} onClick={() => setTheme('day')} className={cn(seg, !night ? 'bg-[#0E1222] text-white' : 'bg-transparent text-white/75')}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="4" />
                 <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
               </svg>
               Day
             </button>
-            <button type="button" aria-pressed={night} onClick={() => setTheme('night')} className={cn(seg, night ? 'bg-[#0E1222] text-white' : 'bg-transparent text-[#3B4155] opacity-75')}>
+            <button type="button" aria-pressed={night} onClick={() => setTheme('night')} className={cn(seg, night ? 'bg-[#0E1222] text-white' : 'bg-transparent text-[#3B4155] opacity-80')}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
               </svg>
@@ -290,7 +312,7 @@ export function LiveMapCard({
           </div>
         </div>
 
-        <div aria-live="polite" className="absolute top-[66px] left-4 z-[6] max-w-[290px]">
+        <div aria-live="polite" className="h30-map-compact-shift absolute top-[66px] left-4 z-[6] max-w-[290px]">
           <div
             key={toast.title}
             className={cn(
@@ -312,7 +334,7 @@ export function LiveMapCard({
 
         <div
           className={cn(
-            'h30-fa absolute top-[70px] right-4 z-[6] w-[236px] rounded-[22px] p-4 shadow-[0_30px_60px_-30px_rgba(40,40,110,0.6)] backdrop-blur-[14px]',
+            'h30-fa h30-map-compact-eta absolute top-[70px] right-4 z-[6] w-[236px] rounded-[22px] p-4 shadow-[0_30px_60px_-30px_rgba(40,40,110,0.6)] backdrop-blur-[14px]',
             night ? 'border border-[#4A5588] bg-[#12162e]/95' : 'border border-white bg-white/95',
           )}
         >
@@ -379,7 +401,7 @@ export function LiveMapCard({
         </p>
         <div
           className={cn(
-            'h30-fb absolute right-3 bottom-3 left-3 z-[6] flex items-center gap-3 rounded-[20px] px-3.5 py-3 shadow-[0_16px_44px_-18px_rgba(14,18,34,0.28)]',
+            'h30-fb h30-map-compact-doctor absolute right-3 bottom-3 left-3 z-[6] flex items-center gap-3 rounded-[20px] px-3.5 py-3 shadow-[0_16px_44px_-18px_rgba(14,18,34,0.28)]',
             night ? 'border border-[#4A5588] bg-[#12162e]/95' : 'bg-white',
           )}
           role="group"

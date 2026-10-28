@@ -142,8 +142,9 @@ export function HomeVisitHero() {
         </span>
       </button>
 
-      <div className="relative z-10 mx-auto flex max-w-[1240px] flex-wrap items-center gap-11 px-6 pt-[52px]">
-        <section aria-labelledby="h30b" className="flex min-w-0 flex-[1_1_460px] flex-col gap-[22px]">
+      <div className="relative z-10 w-full lg:grid lg:grid-cols-[minmax(0,48%)_minmax(0,1fr)] lg:items-stretch">
+        <div className="relative z-20 px-6 pt-[52px] pb-10 lg:flex lg:justify-end lg:py-[52px] lg:pl-[max(24px,calc((100vw-1240px)/2+24px))] lg:pr-10">
+          <section aria-labelledby="h30b" className="flex w-full max-w-[560px] flex-col gap-[22px]">
           <div className="h30-rv h30-d1 inline-flex items-center gap-2.5 self-start rounded-full border border-[#ECEEF4] bg-white/85 py-1.5 pr-3.5 pl-1.5 text-[13.5px] font-medium text-[#3B4155] shadow-[0_6px_20px_-14px_rgba(14,18,34,0.3)]">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFEDE4] px-2.5 py-1 font-bold text-[#9A4521]">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C25A2E" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -348,9 +349,12 @@ export function HomeVisitHero() {
               112
             </a>
           </div>
-        </section>
+          </section>
+        </div>
 
-        <LiveMapCard tick={tick} reduced={reduced} allowTilt={finePointer} />
+        <div className="relative z-10 h-[min(480px,56vh)] min-h-[440px] w-full lg:h-auto lg:min-h-0">
+          <LiveMapCard tick={tick} reduced={reduced} allowTilt={finePointer} />
+        </div>
       </div>
 
       <section aria-label="How doctor at home works" className="h30-rv h30-d6 relative z-10 mx-auto max-w-[1240px] px-6 pt-10 pb-6">

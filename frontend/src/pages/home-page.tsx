@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router';
 import { HomeHero } from '@/features/home/hero/home-hero';
+import { QuickServiceCards } from '@/features/home/quick-service/quick-service-cards';
 import { HomeVisitHero } from '@/features/home/hero-home-visit/home-visit-hero';
 import { HomeServices } from '@/features/home/services/home-services';
 import { HomeTrust } from '@/features/home/trust/home-trust';
@@ -18,6 +19,7 @@ export function HomePage() {
   return (
     <>
       <HomeHero />
+      <QuickServiceCards />
       <HomeVisitHero />
       <HomeServices />
       <HomeTrust />
