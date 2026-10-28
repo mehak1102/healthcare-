@@ -1,12 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { PageHeader } from '@/components/layout/page-header';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { buttonVariants } from '@/components/ui/button-variants';
-import { fetchHomeVisitStatus, fetchPinCoverage } from '@/features/home-visits/api';
-import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { fetchHealthReady } from '@/lib/health-api';
 import { usePageTitle } from '@/lib/use-page-title';
 
@@ -69,7 +67,7 @@ const CATEGORIES: { title: string; text: string; to: string }[] = [
   },
   {
     title: 'Doctor at home',
-    text: 'Home visits are not open for booking yet.',
+    text: 'Pilot-area home visits when booking is open on the server.',
     to: '/doctor-at-home',
   },
   {
@@ -82,71 +80,7 @@ const CATEGORIES: { title: string; text: string; to: string }[] = [
   { title: 'Contact', text: 'How to reach us, and what to do in an emergency.', to: '/contact' },
 ];
 
-export function DoctorAtHomePage() {
-  const [pinInput, setPinInput] = useState('');
-  const debouncedPin = useDebouncedValue(pinInput.replace(/\s/g, ''), 400);
-  const status = useQuery({
-    queryKey: ['home-visits', 'status'],
-    queryFn: ({ signal }) => fetchHomeVisitStatus(signal),
-    staleTime: 60_000,
-  });
-  const pinCheck = useQuery({
-    queryKey: ['home-visits', 'pin', debouncedPin],
-    queryFn: ({ signal }) => fetchPinCoverage(debouncedPin, signal),
-    enabled: debouncedPin.length >= 6 && status.data?.pilot.pinCodeLookup === true,
-  });
-
-  return (
-    <InfoPage
-      eyebrow="Services"
-      title="Doctor at home"
-      description="A verified doctor at your door is part of the plan. It is not open for booking in this version."
-    >
-      <Badge tone="soon" className="w-fit">
-        Not open for booking
-      </Badge>
-      {status.data && <p className="text-sm text-ink-muted">{status.data.message}</p>}
-      <p>
-        Home visits need service areas, a real schedule and an honest arrival time. Until those
-        exist, Sukoon will not offer a home-visit slot or invent an arrival estimate.
-      </p>
-      <label className="mt-4 flex max-w-md flex-col gap-1.5">
-        <span className="text-sm font-semibold text-ink">Check pilot coverage (PIN)</span>
-        <input
-          type="text"
-          inputMode="numeric"
-          autoComplete="postal-code"
-          maxLength={8}
-          value={pinInput}
-          onChange={(event) => setPinInput(event.target.value)}
-          placeholder="e.g. 560001"
-          disabled={status.isPending || status.data?.pilot.pinCodeLookup !== true}
-          className="h-11 w-full rounded-[var(--radius-control)] border border-line bg-surface px-3 text-[0.95rem] hover:border-rose focus-visible:border-coral-ink disabled:bg-surface/60 disabled:text-ink-muted"
-        />
-        {pinCheck.isFetching && debouncedPin.length >= 6 && (
-          <span className="text-sm text-ink-muted">Checking…</span>
-        )}
-        {pinCheck.data && <p className="text-sm text-ink-muted">{pinCheck.data.message}</p>}
-        {pinCheck.isError && (
-          <p className="text-sm text-ink-muted">We could not check that PIN. Try again.</p>
-        )}
-        <span className="text-sm text-ink-muted">
-          {status.data?.pilot.states.length
-            ? `Pilot state: ${status.data.pilot.states.join(', ')}. Only listed PINs are in scope; booking stays closed until dispatch is live.`
-            : 'Service-area matching is still being designed.'}
-        </span>
-      </label>
-      <p className="mt-4">
-        We are building service-area matching, dispatch and honest ETAs before home visits go live.
-        Until then, clinic and video visits with verified doctors are on{' '}
-        <Link to="/doctors?takingBookings=1" className="font-semibold text-coral-ink hover:underline">
-          Find a doctor
-        </Link>
-        .
-      </p>
-    </InfoPage>
-  );
-}
+// Doctor at home hub lives in @/features/home-visits/doctor-at-home-hub-page (see router).
 
 export function OnlineConsultationPage() {
   const health = useQuery({

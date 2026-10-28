@@ -24,6 +24,7 @@ import {
   type DoctorDashboard,
 } from './api';
 import { AvailabilityBadge, CompletionBadge, VerificationBadge } from './status-badges';
+import { DoctorHomeVisitsCard } from '@/features/home-visits/doctor-home-visits-card';
 
 const AVAILABILITY_OPTIONS: { value: AvailabilityStatus; label: string }[] = [
   { value: 'available', label: 'Available' },
@@ -156,6 +157,8 @@ export function DoctorDashboardPage() {
           </CardContent>
         </Card>
 
+        {verified && <DoctorHomeVisitsCard />}
+
         <Card>
           <CardHeader>
             <CardTitle>Consultation setup</CardTitle>
@@ -185,9 +188,11 @@ export function DoctorDashboardPage() {
                 </p>
                 <p>
                   <span className="text-ink-muted">Home visits · </span>
-                  Not open for booking yet.{' '}
+                  Assigned by operations (not a profile toggle). Use the{' '}
+                  <span className="font-semibold text-ink">Home visits</span> card on this dashboard
+                  to accept offers and update en-route status.{' '}
                   <Link to="/doctor-at-home" className="font-semibold text-coral-ink hover:underline">
-                    How home visits will work
+                    Patient info
                   </Link>
                 </p>
                 {data.video.offeredOnProfile && (

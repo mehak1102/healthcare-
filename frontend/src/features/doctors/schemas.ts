@@ -53,6 +53,15 @@ export const doctorProfileSchema = z.object({
   clinicName: place(120),
   city: place(60),
   locality: place(80),
+  homeVisitServicePinCode: z
+    .string()
+    .trim()
+    .regex(/^(\d{6})?$/, 'Enter a 6-digit PIN, for example 110064'),
+  homeVisitFeeInr: z
+    .string()
+    .trim()
+    .regex(/^\d{0,5}$/, 'Enter the fee in whole rupees, for example 1500')
+    .refine((value) => value === '' || Number(value) <= 50_000, 'The fee can be at most ₹50,000'),
   requiresBookingApproval: z.boolean(),
   published: z.boolean(),
 });

@@ -113,6 +113,17 @@ export class DoctorProfile {
   @Prop({ type: String, default: null, maxlength: 80 })
   locality: string | null;
 
+  /**
+   * Pilot home-visit geography: doctors only receive dispatch offers for patient PINs that match
+   * this code (ops can still override). Not the same as clinic address text.
+   */
+  @Prop({ type: String, default: null, match: /^[1-9]\d{5}$/ })
+  homeVisitServicePinCode: string | null;
+
+  /** Whole rupees for a home visit in the doctor’s service PIN. Shown to patients when booking. */
+  @Prop({ type: Number, default: null, min: 0, max: 50_000 })
+  homeVisitFeeInr: number | null;
+
   @Prop({ type: String, enum: AVAILABILITY_STATUSES, default: 'unavailable' })
   availabilityStatus: AvailabilityStatus;
 

@@ -160,6 +160,12 @@ export class DoctorProfilesService {
       city: input.city ?? null,
       cityKey: input.city ? keyOf(input.city) : null,
       locality: input.locality ?? null,
+      ...(input.homeVisitServicePinCode !== undefined
+        ? { homeVisitServicePinCode: input.homeVisitServicePinCode ?? null }
+        : {}),
+      ...(input.homeVisitFeeInr !== undefined
+        ? { homeVisitFeeInr: input.homeVisitFeeInr ?? null }
+        : {}),
       ...(input.requiresBookingApproval === undefined
         ? {}
         : { requiresBookingApproval: input.requiresBookingApproval }),

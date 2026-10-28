@@ -62,8 +62,8 @@ afterAll(async () => {
 describe('operations dashboard', () => {
   it('returns a summary for operations staff and platform admins', async () => {
     await areas.create({
-      pinCode: '560001',
-      stateCode: 'KA',
+      pinCode: '110001',
+      stateCode: 'DL',
       label: 'Ops e2e pin',
       active: true,
     });

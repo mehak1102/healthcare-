@@ -80,7 +80,7 @@ On **Find a doctor** or from the home page 24×7 chips, try query params such as
 - `availWhen=today|tonight|weekend|public_holiday` — time window filters (IST; holidays from
   `public_holidays` when seeded, else built-in national dates)  
 - `npm run db:seed-public-holidays -w backend` — optional; loads India national holidays into MongoDB  
-- `npm run db:seed-service-areas -w backend` — optional; pilot Bangalore PINs for **Doctor at home** lookup  
+- `npm run db:seed-service-areas -w backend` — optional; pilot Delhi + Gurugram PINs for **Doctor at home** lookup  
 - `holidayState=KA` (etc.) with `availWhen=public_holiday` — state + national holidays  
 - `mode=online|clinic` — consultation type  
 - `feeBand=free|under_500|under_1000|under_2000` — consultation fee (INR)  

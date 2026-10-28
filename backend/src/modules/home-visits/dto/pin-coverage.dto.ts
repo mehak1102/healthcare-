@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString, MaxLength, MinLength } from 'class-validator';
 
 export class PinCoverageQueryDto {
-  @ApiProperty({ example: '560001', description: 'India postal PIN (6 digits)' })
+  @ApiProperty({ example: '110064', description: 'India postal PIN (6 digits)' })
   @IsString()
   @MinLength(6)
   @MaxLength(8)

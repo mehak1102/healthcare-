@@ -42,14 +42,14 @@ describe('home visits', () => {
     expect(unknown.body.inPilotArea).toBe(false);
 
     await areas.create({
-      pinCode: '560099',
+      pinCode: '110099',
       stateCode: 'KA',
       label: 'E2E test pin',
       active: true,
     });
 
     const pilot = await request(app.getHttpServer())
-      .get(`${API}/home-visits/pin-coverage?pin=560099`)
+      .get(`${API}/home-visits/pin-coverage?pin=110099`)
       .expect(200);
     expect(pilot.body.inPilotArea).toBe(true);
     expect(pilot.body.bookingOpen).toBe(false);

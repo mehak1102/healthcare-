@@ -123,6 +123,8 @@ export interface MyDoctorProfile extends DoctorPublicProfile {
   published: boolean;
   publishedAt: string | null;
   missing: string[];
+  homeVisitServicePinCode: string | null;
+  homeVisitFeeInr: number | null;
 }
 
 export interface DoctorProfileInput {
@@ -133,6 +135,8 @@ export interface DoctorProfileInput {
   clinicName: string | null;
   city: string | null;
   locality: string | null;
+  homeVisitServicePinCode?: string | null;
+  homeVisitFeeInr?: number | null;
   requiresBookingApproval?: boolean;
   published: boolean;
 }

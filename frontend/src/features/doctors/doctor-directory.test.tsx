@@ -192,6 +192,8 @@ describe('DoctorProfileEditorPage', () => {
     clinicName: null,
     city: null,
     locality: null,
+    homeVisitServicePinCode: null,
+    homeVisitFeeInr: null,
     requiresBookingApproval: true,
     published: false,
     publishedAt: null,

@@ -6,7 +6,7 @@ import type { Env } from '../../config/env.schema';
 import { isHomeVisitBookingOpen } from './home-visit-booking';
 import { HOME_VISIT_MESSAGE } from './home-visits.constants';
 import { normalizeIndiaPin } from './india-pin';
-import { KARNATAKA_SERVICE_AREA_SEED } from './service-area-seed';
+import { HOME_VISIT_SERVICE_AREA_SEED } from './service-area-seed';
 import { ServiceArea, type ServiceAreaDocument } from './service-area.schema';
 
 export interface PinCoverageResult {
@@ -33,7 +33,7 @@ export class ServiceAreasService {
 
   async upsertSeedRows(): Promise<number> {
     let changed = 0;
-    for (const row of KARNATAKA_SERVICE_AREA_SEED) {
+    for (const row of HOME_VISIT_SERVICE_AREA_SEED) {
       const result = await this.areas.updateOne(
         { pinCode: row.pinCode },
         {
@@ -48,6 +48,11 @@ export class ServiceAreasService {
       );
       if (result.upsertedCount > 0 || result.modifiedCount > 0) changed++;
     }
+    const pilotPins = HOME_VISIT_SERVICE_AREA_SEED.map((r) => r.pinCode);
+    await this.areas.updateMany(
+      { pinCode: { $nin: pilotPins } },
+      { $set: { active: false } },
+    );
     return changed;
   }
 
