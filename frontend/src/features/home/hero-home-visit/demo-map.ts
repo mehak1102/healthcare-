@@ -1,11 +1,16 @@
+/** Path along Press Enclave Marg on the example Malviya Nagar map (viewBox 600×560). */
 export const ROUTE: [number, number][] = [
-  [90, 480],
-  [90, 340],
-  [250, 340],
-  [250, 200],
-  [430, 200],
-  [430, 120],
-  [520, 120],
+  [528, 358],
+  [400, 326],
+  [288, 318],
+  [168, 292],
+];
+
+export const CLINIC = ROUTE[0]!;
+export const HOME = ROUTE[ROUTE.length - 1]!;
+export const NEARBY: [number, number][] = [
+  [318, 468],
+  [508, 248],
 ];
 
 const SEG: number[] = [];
@@ -19,11 +24,11 @@ for (let i = 1; i < ROUTE.length; i += 1) {
 }
 
 export const MAP_H = 640;
-export const TILT_DEG = 36;
+export const TILT_DEG = 0;
 export const TILT = (TILT_DEG * Math.PI) / 180;
-export const PERSP = 1100;
-export const MAP_K = 1.18;
-export const PLANE_TOP = 120;
+export const PERSP = 1600;
+export const MAP_K = 1;
+export const PLANE_TOP = 0;
 export const PLANE_H = MAP_H - PLANE_TOP;
 export const TRIP_SECS = 30;
 export const CYCLE_SECS = 36;
