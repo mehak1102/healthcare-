@@ -9,53 +9,44 @@ import {
   ROUTE_LEN,
   THEMES,
   TRIP_SECS,
+  VIEWBOX_H,
+  VIEWBOX_W,
   headingAt,
+  mapPointPct,
   pointAt,
-  projectToPlane,
   type MapTheme,
 } from './demo-map';
 
-function DoctorCarMarker({ heading, jump }: { heading: number; jump: boolean }) {
+/** Top-down car art faces east (right) at rotate(0). */
+const CAR_ART_FACING_DEG = 0;
+
+function DoctorCarMarker({ heading, jump, night }: { heading: number; jump: boolean; night: boolean }) {
   return (
-    <div className="flex flex-col items-center">
-      <div className="relative z-[2] mb-0.5 flex flex-col items-center">
-        <div className="size-[46px] overflow-hidden rounded-full border-[3px] border-white bg-white shadow-[0_8px_22px_-8px_rgba(14,18,34,0.55)]">
-          <img src="/home-visit/doctor-preview.png" alt="" className="size-full object-cover object-[center_22%]" />
-        </div>
-        <svg width="18" height="10" viewBox="0 0 18 10" className="-mt-0.5" aria-hidden="true">
-          <path d="M9 10 2.5 2.5h13L9 10Z" fill="#4C4FE0" />
-          <circle cx="9" cy="3.5" r="2.5" fill="#4C4FE0" />
-        </svg>
-      </div>
-      <div
-        className="relative mt-[-2px]"
-        style={{
-          transform: `rotate(${heading.toFixed(1)}deg)`,
-          transition: jump ? 'none' : 'transform 1s linear',
-        }}
-      >
-        <span className="absolute top-1/2 left-1/2 size-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#4C4FE0]/25 blur-md" />
-        <svg width="44" height="58" viewBox="0 0 44 58" fill="none" aria-hidden="true" className="relative drop-shadow-[0_6px_10px_rgba(14,18,34,0.35)]">
-          <path
-            d="M10 18c0-6 4-10 12-10s12 4 12 10l2 14c0 8-6 14-14 14s-14-6-14-14l2-14Z"
-            fill="#FFFFFF"
-            stroke="#FFFFFF"
-            strokeWidth="4"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M14 16h16l1.5 8H12.5L14 16Z"
-            fill="#B8C0D4"
-            stroke="#FFFFFF"
-            strokeWidth="2"
-            strokeLinejoin="round"
-          />
-          <path d="M11 28h22" stroke="#E8EAF1" strokeWidth="2" strokeLinecap="round" />
-          <rect x="13" y="30" width="7" height="10" rx="2" fill="#9AA3B8" stroke="#FFFFFF" strokeWidth="1.5" />
-          <rect x="24" y="30" width="7" height="10" rx="2" fill="#9AA3B8" stroke="#FFFFFF" strokeWidth="1.5" />
-          <path d="M8 38h28" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
-        </svg>
-      </div>
+    <div
+      className={cn(
+        'relative',
+        night
+          ? 'drop-shadow-[0_0_14px_rgba(126,182,255,0.55)] drop-shadow-[0_12px_20px_rgba(0,0,0,0.65)]'
+          : 'drop-shadow-[0_10px_18px_rgba(14,18,34,0.4)]',
+      )}
+      style={{
+        transform: `rotate(${(heading - CAR_ART_FACING_DEG).toFixed(1)}deg)`,
+        transition: jump ? 'none' : 'transform 1s linear',
+      }}
+    >
+      <img
+        src="/home-visit/car-pin.png"
+        alt=""
+        width={120}
+        height={120}
+        className="block h-[76px] w-auto max-w-none select-none"
+        draggable={false}
+      />
+      <img
+        src="/home-visit/doctor-preview.png"
+        alt=""
+        className="pointer-events-none absolute top-[6%] left-[56%] size-[22px] -translate-x-1/2 rounded-full border-2 border-white object-cover object-[center_22%] shadow-sm"
+      />
     </div>
   );
 }
@@ -63,11 +54,7 @@ function DoctorCarMarker({ heading, jump }: { heading: number; jump: boolean }) 
 const ROUTE_D = ROUTE.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x} ${y}`).join('');
 
 function markerStyle(x: number, y: number) {
-  const p = projectToPlane(x, y);
-  return {
-    left: `${p.leftPct.toFixed(2)}%`,
-    top: `${p.topPx.toFixed(1)}px`,
-  };
+  return mapPointPct(x, y);
 }
 
 export function LiveMapCard({
@@ -90,9 +77,9 @@ export function LiveMapCard({
   const mins = Math.max(0, TRIP_SECS - ph);
   const jump = !reduced && ph === 0;
   const pt = pointAt(f);
-  const car = projectToPlane(pt[0], pt[1]);
+  const car = mapPointPct(pt[0], pt[1]);
   const carHeading = headingAt(f);
-  const home = projectToPlane(HOME[0], HOME[1]);
+  const home = mapPointPct(HOME[0], HOME[1]);
   const stageIdx = arrived ? 3 : f > 0.06 ? 2 : 1;
   const stageNames = ['Booked', 'Assigned', 'On the way', 'Arrived'] as const;
   const rx = hover ? (hover.y / hover.h - 0.5) * -3 : 0;
@@ -137,7 +124,7 @@ export function LiveMapCard({
           <img
             src="/home-visit/map-day.jpg"
             alt=""
-            className={cn('absolute inset-0 size-full object-cover transition-opacity duration-700', night && 'opacity-0')}
+            className={cn('absolute inset-0 size-full object-cover object-center transition-opacity duration-700', night && 'opacity-0')}
           />
           <img
             src="/home-visit/map-night.jpg"
@@ -148,9 +135,9 @@ export function LiveMapCard({
             )}
           />
           <svg
-            viewBox="0 0 600 560"
-            preserveAspectRatio="none"
-            className={cn('absolute inset-0 block size-full transition-opacity duration-700', night && 'opacity-0')}
+            viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
+            preserveAspectRatio="xMidYMid slice"
+            className="absolute inset-0 block size-full"
           >
             <defs>
               <filter id="h30-route-glow" x="-40%" y="-40%" width="180%" height="180%">
@@ -160,14 +147,22 @@ export function LiveMapCard({
             <path
               d={route}
               fill="none"
-              stroke="#5B8DEF"
+              stroke={night ? '#7EB6FF' : '#5B8DEF'}
               strokeWidth="16"
               strokeLinecap="round"
               strokeLinejoin="round"
-              opacity="0.35"
+              opacity={night ? 0.5 : 0.35}
               filter="url(#h30-route-glow)"
             />
-            <path d={route} fill="none" stroke="#FFFFFF" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" opacity="0.55" />
+            <path
+              d={route}
+              fill="none"
+              stroke="#FFFFFF"
+              strokeWidth="13"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity={night ? 0.85 : 0.55}
+            />
             <path
               d={route}
               fill="none"
@@ -182,7 +177,7 @@ export function LiveMapCard({
             <path
               d={route}
               fill="none"
-              stroke="#5B8DEF"
+              stroke={night ? '#9CC8FF' : '#5B8DEF'}
               strokeWidth="7"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -197,7 +192,7 @@ export function LiveMapCard({
 
         <div
           aria-hidden="true"
-          className={cn('absolute z-[3] -translate-x-1/2 -translate-y-1/2 transition-opacity duration-700', night && 'opacity-0')}
+          className="absolute z-[3] -translate-x-1/2 -translate-y-1/2"
           style={markerStyle(CLINIC[0], CLINIC[1])}
         >
           <div className="flex flex-col items-center gap-1">
@@ -211,7 +206,7 @@ export function LiveMapCard({
         </div>
         <div
           aria-hidden="true"
-          className={cn('h30-nearby absolute z-[3] -translate-x-1/2 -translate-y-1/2 transition-opacity duration-700', night && 'opacity-0')}
+          className="h30-nearby absolute z-[3] -translate-x-1/2 -translate-y-1/2"
           style={markerStyle(NEARBY[0]![0], NEARBY[0]![1])}
         >
           <div className="relative size-[30px]">
@@ -221,7 +216,7 @@ export function LiveMapCard({
         </div>
         <div
           aria-hidden="true"
-          className={cn('h30-nearby absolute z-[3] -translate-x-1/2 -translate-y-1/2 transition-opacity duration-700', night && 'opacity-0')}
+          className="h30-nearby absolute z-[3] -translate-x-1/2 -translate-y-1/2"
           style={markerStyle(NEARBY[1]![0], NEARBY[1]![1])}
         >
           <div className="relative size-[30px]">
@@ -231,8 +226,8 @@ export function LiveMapCard({
         </div>
         <div
           aria-hidden="true"
-          className={cn('h30-bob absolute z-[4] transition-opacity duration-700', night && 'opacity-0')}
-          style={{ left: `${home.leftPct.toFixed(2)}%`, top: `${(home.topPx + 4).toFixed(1)}px` }}
+          className="h30-bob absolute z-[4] -translate-x-1/2 -translate-y-full"
+          style={home}
         >
           <div className="flex flex-col items-center">
             <span className="inline-flex items-center gap-1.5 rounded-xl bg-[#0E1222] px-2.5 py-1.5 text-xs font-semibold whitespace-nowrap text-white shadow-[0_12px_24px_-10px_rgba(14,18,34,0.6)]">
@@ -248,23 +243,37 @@ export function LiveMapCard({
         </div>
         <div
           aria-hidden="true"
-          className={cn('absolute z-[5] -translate-x-1/2 transition-opacity duration-700', night && 'opacity-0')}
+          className="absolute z-[5]"
           style={{
-            left: `${car.leftPct.toFixed(2)}%`,
-            top: `${car.topPx.toFixed(1)}px`,
-            transform: 'translate(-50%, -72%)',
-            transition: jump ? 'none' : 'left 1s linear, top 1s linear, opacity 0.7s',
+            left: car.left,
+            top: car.top,
+            transform: 'translate(-50%, -50%)',
+            transition: jump ? 'none' : 'left 1s linear, top 1s linear',
           }}
         >
-          <DoctorCarMarker heading={carHeading} jump={jump} />
+          <DoctorCarMarker heading={carHeading} jump={jump} night={night} />
         </div>
 
         <div className="absolute top-4 right-4 left-4 z-[6] flex flex-wrap items-start justify-between gap-2.5">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white bg-white/92 px-3 py-2 text-[12.5px] font-semibold text-[#3B4155] shadow-[0_10px_24px_-16px_rgba(14,18,34,0.4)]">
+          <div
+            className={cn(
+              'inline-flex items-center gap-2 rounded-full px-3 py-2 text-[12.5px] font-semibold shadow-[0_10px_24px_-16px_rgba(14,18,34,0.4)]',
+              night
+                ? 'border border-[#4A5588] bg-[#12162e]/92 text-white'
+                : 'border border-white bg-white/92 text-[#3B4155]',
+            )}
+          >
             <span className="h30-blink size-[7px] rounded-full bg-[#34D399]" />
             Live preview · Malviya Nagar, Delhi
           </div>
-          <div role="group" aria-label="Map theme" className="flex rounded-xl border border-white bg-white/92 p-[3px] shadow-[0_10px_24px_-16px_rgba(14,18,34,0.4)]">
+          <div
+            role="group"
+            aria-label="Map theme"
+            className={cn(
+              'flex rounded-xl p-[3px] shadow-[0_10px_24px_-16px_rgba(14,18,34,0.4)]',
+              night ? 'border border-[#4A5588] bg-[#12162e]/92' : 'border border-white bg-white/92',
+            )}
+          >
             <button type="button" aria-pressed={!night} onClick={() => setTheme('day')} className={cn(seg, night ? 'bg-transparent text-[#3B4155] opacity-75' : 'bg-[#0E1222] text-white')}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="4" />
@@ -282,20 +291,31 @@ export function LiveMapCard({
         </div>
 
         <div aria-live="polite" className="absolute top-[66px] left-4 z-[6] max-w-[290px]">
-          <div key={toast.title} className="h30-pop flex items-center gap-2.5 rounded-2xl border border-white bg-white/96 px-3 py-2.5 shadow-[0_18px_36px_-18px_rgba(14,18,34,0.5)]">
+          <div
+            key={toast.title}
+            className={cn(
+              'h30-pop flex items-center gap-2.5 rounded-2xl px-3 py-2.5 shadow-[0_18px_36px_-18px_rgba(14,18,34,0.5)]',
+              night ? 'border border-[#4A5588] bg-[#12162e]/95' : 'border border-white bg-white/96',
+            )}
+          >
             <span aria-hidden="true" className="grid size-[30px] shrink-0 place-items-center rounded-[10px]" style={{ background: toast.bg, color: toast.fg }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                 <path d={toast.d} />
               </svg>
             </span>
             <span>
-              <span className="block text-[13px] font-semibold text-[#0E1222]">{toast.title}</span>
-              <span className="block text-[11.5px] text-[#6B7186]">{toast.sub}</span>
+              <span className={cn('block text-[13px] font-semibold', night ? 'text-white' : 'text-[#0E1222]')}>{toast.title}</span>
+              <span className={cn('block text-[11.5px]', night ? 'text-[#B8BFD4]' : 'text-[#6B7186]')}>{toast.sub}</span>
             </span>
           </div>
         </div>
 
-        <div className="h30-fa absolute top-[70px] right-4 z-[6] w-[236px] rounded-[22px] border border-white bg-white/95 p-4 shadow-[0_30px_60px_-30px_rgba(40,40,110,0.6)] backdrop-blur-[14px]">
+        <div
+          className={cn(
+            'h30-fa absolute top-[70px] right-4 z-[6] w-[236px] rounded-[22px] p-4 shadow-[0_30px_60px_-30px_rgba(40,40,110,0.6)] backdrop-blur-[14px]',
+            night ? 'border border-[#4A5588] bg-[#12162e]/95' : 'border border-white bg-white/95',
+          )}
+        >
           <div className="flex items-center gap-3.5">
             <div className="relative size-[66px] shrink-0">
               <svg width="66" height="66" viewBox="0 0 64 64" aria-hidden="true">
@@ -322,13 +342,19 @@ export function LiveMapCard({
               </svg>
               <span className="absolute inset-0 flex flex-col items-center justify-center leading-none">
                 <span className="text-xl font-bold tabular-nums">{arrived ? '✓' : String(mins)}</span>
-                <span className="text-[9.5px] font-bold tracking-[0.06em] text-[#6B7186]">{arrived ? 'HERE' : 'MIN'}</span>
+                <span className={cn('text-[9.5px] font-bold tracking-[0.06em]', night ? 'text-[#B8BFD4]' : 'text-[#6B7186]')}>
+                {arrived ? 'HERE' : 'MIN'}
               </span>
+            </span>
             </div>
             <div className="min-w-0">
-              <div className="text-[12.5px] font-semibold text-[#6B7186]">{arrived ? 'Dr. Rao is' : 'Arriving in about'}</div>
-              <div className="text-xl leading-[1.15] font-bold tracking-[-0.03em]">{arrived ? 'At your door' : `${mins} minutes`}</div>
-              <div className="mt-0.5 text-xs text-[#6B7186]">{Math.max(0.1, 1.4 * (1 - f)).toFixed(1)} km · via Press Enclave Marg</div>
+              <div className={cn('text-[12.5px] font-semibold', night ? 'text-[#B8BFD4]' : 'text-[#6B7186]')}>
+                {arrived ? 'Dr. Rao is' : 'Arriving in about'}
+              </div>
+              <div className={cn('text-xl leading-[1.15] font-bold tracking-[-0.03em]', night && 'text-white')}>
+                {arrived ? 'At your door' : `${mins} minutes`}
+              </div>
+              <div className={cn('mt-0.5 text-xs', night ? 'text-[#B8BFD4]' : 'text-[#6B7186]')}>{Math.max(0.1, 1.4 * (1 - f)).toFixed(1)} km · via Press Enclave Marg</div>
             </div>
           </div>
           <div className="mt-3.5 grid grid-cols-4 gap-1">
@@ -352,7 +378,10 @@ export function LiveMapCard({
           {night ? 'Example area · Illustration' : 'Example area · Map data © Google'}
         </p>
         <div
-          className="h30-fb absolute right-3 bottom-3 left-3 z-[6] flex items-center gap-3 rounded-[20px] bg-white px-3.5 py-3 shadow-[0_16px_44px_-18px_rgba(14,18,34,0.28)]"
+          className={cn(
+            'h30-fb absolute right-3 bottom-3 left-3 z-[6] flex items-center gap-3 rounded-[20px] px-3.5 py-3 shadow-[0_16px_44px_-18px_rgba(14,18,34,0.28)]',
+            night ? 'border border-[#4A5588] bg-[#12162e]/95' : 'bg-white',
+          )}
           role="group"
           aria-label="Example assigned doctor (preview)"
         >
@@ -367,9 +396,9 @@ export function LiveMapCard({
             <span aria-hidden="true" className="absolute right-0 bottom-0 size-3 rounded-full border-2 border-white bg-[#22C55E]" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-[15px] font-semibold leading-tight text-[#0E1222]">Dr. Ananya Rao</div>
-            <div className="text-[13px] text-[#6B7186]">General Physician</div>
-            <div className="mt-0.5 flex items-center gap-1 text-[12.5px] text-[#6B7186]">
+            <div className={cn('truncate text-[15px] font-semibold leading-tight', night ? 'text-white' : 'text-[#0E1222]')}>Dr. Ananya Rao</div>
+            <div className={cn('text-[13px]', night ? 'text-[#B8BFD4]' : 'text-[#6B7186]')}>General Physician</div>
+            <div className={cn('mt-0.5 flex items-center gap-1 text-[12.5px]', night ? 'text-[#B8BFD4]' : 'text-[#6B7186]')}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="#F5A623" aria-hidden="true">
                 <path d="M12 2l2.9 6.9L22 9.8l-5.2 4.5 1.6 6.9L12 17.8 5.6 21.2 7.2 14.3 2 9.8l7.1-.9L12 2z" />
               </svg>
