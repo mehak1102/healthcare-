@@ -130,7 +130,41 @@ export const router = createBrowserRouter([
       },
       {
         path: 'doctor-at-home',
-        lazy: async () => ({ Component: (await import('@/pages/info-pages')).DoctorAtHomePage }),
+        lazy: async () => ({
+          Component: (await import('@/features/home-visits/doctor-at-home-hub-page'))
+            .DoctorAtHomeHubPage,
+        }),
+      },
+      {
+        path: 'doctor-at-home/book',
+        lazy: async () => {
+          const { BookHomeVisitPage } = await import('@/features/home-visits/book-home-visit-page');
+          return {
+            Component: () => (
+              <RequireAuth>
+                <RequirePermission permission="appointments:self:book">
+                  <BookHomeVisitPage />
+                </RequirePermission>
+              </RequireAuth>
+            ),
+          };
+        },
+      },
+      {
+        path: 'doctor-at-home/visits/:id',
+        lazy: async () => {
+          const { HomeVisitDetailPage } =
+            await import('@/features/home-visits/home-visit-detail-page');
+          return {
+            Component: () => (
+              <RequireAuth>
+                <RequirePermission permission="appointments:self:book">
+                  <HomeVisitDetailPage />
+                </RequirePermission>
+              </RequireAuth>
+            ),
+          };
+        },
       },
       {
         path: 'online-consultation',

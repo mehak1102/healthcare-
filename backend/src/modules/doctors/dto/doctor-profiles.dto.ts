@@ -95,6 +95,29 @@ export class UpdateDoctorProfileDto {
   locality?: string | null;
 
   @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    description: '6-digit PIN where you take home visits; must match patient request PIN for dispatch',
+  })
+  @IsOptional()
+  @Transform(blankToNull)
+  @IsString()
+  @Matches(/^[1-9]\d{5}$/, { message: 'homeVisitServicePinCode must be a valid 6-digit PIN' })
+  homeVisitServicePinCode?: string | null;
+
+  @ApiPropertyOptional({
+    type: Number,
+    nullable: true,
+    description: 'Home visit fee in whole rupees for your service PIN',
+  })
+  @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? null : value))
+  @IsInt()
+  @Min(0)
+  @Max(50_000)
+  homeVisitFeeInr?: number | null;
+
+  @ApiPropertyOptional({
     description:
       'When true, new bookings wait for you to accept before the patient can join a video call',
   })
@@ -280,6 +303,10 @@ export class MyDoctorProfileDto extends DoctorPublicProfileDto {
   requiresBookingApproval: boolean;
   @ApiProperty() published: boolean;
   @ApiProperty({ type: String, nullable: true }) publishedAt: string | null;
+  @ApiProperty({ type: String, nullable: true })
+  homeVisitServicePinCode: string | null;
+  @ApiProperty({ type: Number, nullable: true })
+  homeVisitFeeInr: number | null;
   @ApiProperty({ type: String, isArray: true, description: 'What is still needed to publish' })
   missing: string[];
 
@@ -292,6 +319,8 @@ export class MyDoctorProfileDto extends DoctorPublicProfileDto {
       requiresBookingApproval: profile.requiresBookingApproval,
       published: profile.published,
       publishedAt: profile.publishedAt?.toISOString() ?? null,
+      homeVisitServicePinCode: profile.homeVisitServicePinCode,
+      homeVisitFeeInr: profile.homeVisitFeeInr,
       missing,
       availabilityStatus: shownAvailability(profile.availabilityStatus),
       profileCompletion: profileCompletionOf(missing),

@@ -14,6 +14,12 @@ import {
   formatWhen,
   type DashboardAppointment,
 } from './api';
+import {
+  homeVisitIsActive,
+  homeVisitStatusLabel,
+  HOME_VISIT_MINE_KEY,
+  homeVisitsApi,
+} from '@/features/home-visits/api';
 
 export function PatientDashboardPage() {
   usePageTitle('Patient dashboard');
@@ -34,7 +40,18 @@ export function PatientDashboardPage() {
         item.status === 'pending_doctor' || item.status === 'pending_payment';
       if (data.upcoming.some(watch)) return 8_000;
       if (data.onlineConsultations.items.some(watch)) return 8_000;
+      if (data.homeVisits.count > 0) return 12_000;
       return false;
+    },
+  });
+
+  const homeVisits = useQuery({
+    queryKey: HOME_VISIT_MINE_KEY,
+    queryFn: () => homeVisitsApi.mine(),
+    enabled: Boolean(dashboard.data?.homeVisits.available || dashboard.data?.homeVisits.count),
+    refetchInterval: (q) => {
+      const active = q.state.data?.items.some((i) => homeVisitIsActive(i.status));
+      return active ? 12_000 : false;
     },
   });
 
@@ -132,11 +149,27 @@ export function PatientDashboardPage() {
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             <p className="text-sm text-ink-muted">{data.homeVisits.message}</p>
+            {data.homeVisits.available && (
+              <Link to="/doctor-at-home/book" className={buttonVariants({ size: 'sm', className: 'w-fit' })}>
+                Book a home visit
+              </Link>
+            )}
+            {homeVisits.data?.items
+              .filter((i) => homeVisitIsActive(i.status))
+              .map((visit) => (
+                <Link
+                  key={visit.id}
+                  to={`/doctor-at-home/visits/${visit.id}`}
+                  className="text-sm font-semibold text-coral-ink hover:underline"
+                >
+                  Track visit · PIN {visit.pinCode} · {homeVisitStatusLabel(visit.status)}
+                </Link>
+              ))}
             <Link
               to="/doctor-at-home"
               className="text-sm font-semibold text-coral-ink hover:underline"
             >
-              Read how home visits will work
+              Doctor at home hub
             </Link>
           </CardContent>
         </Card>

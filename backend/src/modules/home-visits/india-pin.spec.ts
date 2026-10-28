@@ -2,8 +2,8 @@ import { normalizeIndiaPin } from './india-pin';
 
 describe('normalizeIndiaPin', () => {
   it('accepts a 6-digit PIN', () => {
-    expect(normalizeIndiaPin('560001')).toBe('560001');
-    expect(normalizeIndiaPin(' 560 001 ')).toBe('560001');
+    expect(normalizeIndiaPin('110064')).toBe('110064');
+    expect(normalizeIndiaPin(' 110 064 ')).toBe('110064');
   });
 
   it('rejects invalid PINs', () => {

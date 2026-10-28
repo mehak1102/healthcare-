@@ -1,4 +1,5 @@
 export const HOME_VISIT_REQUEST_STATUSES = [
+  'pending_payment',
   'requested',
   'matching',
   'offered',
@@ -13,6 +14,7 @@ export const HOME_VISIT_REQUEST_STATUSES = [
 export type HomeVisitRequestStatus = (typeof HOME_VISIT_REQUEST_STATUSES)[number];
 
 export const HOME_VISIT_ACTIVE_STATUSES: readonly HomeVisitRequestStatus[] = [
+  'pending_payment',
   'requested',
   'matching',
   'offered',
@@ -39,3 +41,8 @@ export type DispatchOfferStatus = (typeof DISPATCH_OFFER_STATUSES)[number];
 export const HOME_VISIT_PILOT_QUOTE_FEE_MINOR = 149_900;
 
 export const DISPATCH_OFFER_TTL_MINUTES = 30;
+
+/** Estimated drive time for pilot route progress (not live GPS). */
+export const HOME_VISIT_ESTIMATED_TRIP_MINUTES = 30;
+
+export const HOME_VISIT_PAYMENT_HOLD_MINUTES = 15;

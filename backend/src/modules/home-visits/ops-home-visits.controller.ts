@@ -8,6 +8,8 @@ import type { AuthContext } from '../auth/auth-context';
 import { CurrentAuth } from '../auth/decorators';
 import {
   ListOpsHomeVisitsQueryDto,
+  ListOpsDispatchDoctorsQueryDto,
+  OpsDispatchDoctorListDto,
   OpsHomeVisitListDto,
   ReassignHomeVisitDto,
 } from './dto/home-visit-requests.dto';
@@ -27,6 +29,15 @@ export class OpsHomeVisitsController {
   @ApiOkResponse({ type: OpsHomeVisitListDto })
   async list(@Query() query: ListOpsHomeVisitsQueryDto): Promise<OpsHomeVisitListDto> {
     return this.requests.listForOps(query);
+  }
+
+  @Get('dispatch-doctors')
+  @RequirePermissions(PERMISSIONS.DISPATCH_OPERATE)
+  @ApiOkResponse({ type: OpsDispatchDoctorListDto })
+  async dispatchDoctors(
+    @Query() query: ListOpsDispatchDoctorsQueryDto,
+  ): Promise<OpsDispatchDoctorListDto> {
+    return this.requests.listDispatchDoctors(query);
   }
 
   @Post(':id/reassign')

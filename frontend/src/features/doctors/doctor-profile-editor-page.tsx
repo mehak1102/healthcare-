@@ -31,6 +31,8 @@ const toValues = (profile: MyDoctorProfile): DoctorProfileValues => ({
   clinicName: profile.clinicName ?? '',
   city: profile.city ?? '',
   locality: profile.locality ?? '',
+  homeVisitServicePinCode: profile.homeVisitServicePinCode ?? '',
+  homeVisitFeeInr: profile.homeVisitFeeInr === null ? '' : String(profile.homeVisitFeeInr),
   requiresBookingApproval: profile.requiresBookingApproval,
   published: profile.published,
 });
@@ -92,6 +94,9 @@ function ProfileEditor({ profile }: { profile: MyDoctorProfile }) {
       clinicName: (clinic && values.clinicName) || null,
       city: (clinic && values.city) || null,
       locality: (clinic && values.locality) || null,
+      homeVisitServicePinCode: values.homeVisitServicePinCode.trim() || null,
+      homeVisitFeeInr:
+        values.homeVisitFeeInr === '' ? null : Number(values.homeVisitFeeInr),
     });
   });
 
@@ -219,7 +224,36 @@ function ProfileEditor({ profile }: { profile: MyDoctorProfile }) {
                   </label>
                 ))}
               </div>
+              <Alert tone="info" title="Doctor at home" className="mt-4">
+                Home visits are assigned by operations after a patient books in a pilot PIN. Set your{' '}
+                <strong>home visit service PIN</strong> below to the same 6-digit PIN as the areas you
+                cover (for example Delhi or Gurugram pilot PINs). You accept dispatch offers on{' '}
+                <Link to="/doctor" className="font-semibold text-coral-ink hover:underline">
+                  your doctor dashboard
+                </Link>{' '}
+                (Home visits card).
+              </Alert>
             </fieldset>
+
+            <FormField
+              label="Home visit service PIN"
+              inputMode="numeric"
+              maxLength={6}
+              hint="6-digit India PIN where you take home visits. Must match the patient’s request PIN."
+              error={errors.homeVisitServicePinCode?.message}
+              className="sm:max-w-xs"
+              {...register('homeVisitServicePinCode')}
+            />
+
+            <FormField
+              label="Home visit fee (₹)"
+              inputMode="numeric"
+              maxLength={5}
+              hint="Whole rupees you charge for a home visit in that PIN. Patients see this when booking."
+              error={errors.homeVisitFeeInr?.message}
+              className="sm:max-w-xs"
+              {...register('homeVisitFeeInr')}
+            />
 
             <FormField
               label="Consultation fee (₹)"

@@ -2,5 +2,5 @@
 export const HOME_VISIT_MESSAGE =
   'Doctor-at-home visits are not open for booking yet.';
 
-/** Geography pilot (D8) — no service areas or matching yet. */
-export const HOME_VISIT_PILOT_STATE_CODES = ['KA'] as const;
+/** Geography pilot — Delhi (DL) and Gurugram (HR) PIN allow-list. */
+export const HOME_VISIT_PILOT_STATE_CODES = ['DL', 'HR'] as const;
